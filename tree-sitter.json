@@ -1,0 +1,38 @@
+{
+  "$schema": "https://tree-sitter.github.io/tree-sitter/assets/schemas/config.schema.json",
+  "grammars": [
+    {
+      "name": "monad",
+      "camelcase": "Monad",
+      "title": "Monad",
+      "scope": "source.monad",
+      "file-types": [
+        "monad",
+        "mo"
+      ],
+      "injection-regex": "^monad$",
+      "class-name": "TreeSitterMonad"
+    }
+  ],
+  "metadata": {
+    "version": "0.1.0",
+    "license": "Apache-2.0",
+    "description": "Parser for the Monad language",
+    "authors": [
+      {
+        "name": "Anders Christiansen Sørby",
+        "email": "anders@sorby.xyz",
+        "url": "https://sorby.xyz/"
+      }
+    ]
+  },
+  "bindings": {
+    "c": true,
+    "go": true,
+    "node": true,
+    "python": true,
+    "rust": true,
+    "swift": true,
+    "zig": false
+  }
+}
