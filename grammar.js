@@ -11,8 +11,6 @@ const attr = require('./grammar/attr.js')
 const basic = require('./grammar/basic.js')
 const command = require('./grammar/command.js')
 const do_ = require('./grammar/do.js')
-const syntax = require('./grammar/syntax.js')
-const tactic = require('./grammar/tactic.js')
 const term = require('./grammar/term.js')
 const {sep1} = require('./grammar/util.js')
 
@@ -45,9 +43,7 @@ module.exports = grammar({
     /\n/,
   ],
 
-  // externals: $ => [
-  //   $.block_comment,
-  // ],
+
 
   conflicts: $ => [
     [$._binder_ident],
@@ -61,6 +57,8 @@ module.exports = grammar({
     [$._class_signature],
     [$._struct_simple_binder, $._binder_ident],
     [$.instance],
+    [$.synthetic_hole, $.affine_binder],
+    [$._term, $.linear_binder],
   ],
 
   word: $ => $._identifier,
@@ -79,7 +77,6 @@ module.exports = grammar({
           field('name', $.identifier),
           $.hole,
           $._bracketed_binder,
-          $.anonymous_constructor,
         )
       ),
     ),
@@ -88,7 +85,6 @@ module.exports = grammar({
       $.apply,
       $.comparison,
       $.let,
-      $.tactics,
       $.binary_expression,
       $.neg,
       $.fun,
@@ -118,7 +114,7 @@ module.exports = grammar({
 
     for_in: $ => seq(
       'for',
-      choice($.identifier, $.anonymous_constructor),
+      $.identifier,
       'in',
       field('iterable', $._expression),
       field('body', $.do),
@@ -177,13 +173,7 @@ module.exports = grammar({
       prec.left(PREC.plus, seq($._expression, '+', $._expression)),
       prec.left(PREC.plus, seq($._expression, '-', $._expression)),
 
-      prec.right(PREC.plus, seq($._expression, '∘', $._expression)),
 
-      prec.left(PREC.opop, seq($._expression, '∧', $._expression)),
-      prec.left(PREC.opop, seq($._expression, '∨', $._expression)),
-      prec.left(PREC.opop, seq($._expression, '/\\', $._expression)),
-      prec.left(PREC.opop, seq($._expression, '\\/', $._expression)),
-      prec.left(PREC.opop, seq($._expression, '↔', $._expression)),
 
       prec.left(PREC.or, seq($._expression, '||', $._expression)),
       prec.left(PREC.and, seq($._expression, '&&', $._expression)),
@@ -205,7 +195,6 @@ module.exports = grammar({
       prec.left(PREC.opop, seq($._expression, '<$>', $._expression)),
 
       prec.left(PREC.equal, seq($._expression, '=', $._expression)),
-      prec.left(PREC.equal, seq($._expression, '≠', $._expression)),
     ),
 
     comparison: $ => prec.left(PREC.compare, seq(
@@ -223,24 +212,15 @@ module.exports = grammar({
 
     comment: $ => token(choice(
       seq('//', /.*/),
-      seq(
-        '/*',
-        repeat(choice(
-          /[^*]/,
-          /\*[^/]/
-        )),
-        '*/',
-      ),
+      seq('/*', /[\s\S]*?\*\//),
     )),
-
-    _newline: $ => /\n/,
 
     _identifier: $ => /[_a-zA-ZͰ-ϿĀ-ſ\U0001D400-\U0001D7FF][_`'`a-zA-Z0-9Ͱ-ϿĀ-ſ∇!?\u2070-\u209F\U0001D400-\U0001D7FF]*/,
     _escaped_identifier: $ =>  /«[^»]*»/,
+    _newline: $ => /\n/,
 
     ...attr,
     ...command,
-    ...tactic,
     ...basic.rules,
     ...do_,
     ...term.rules,

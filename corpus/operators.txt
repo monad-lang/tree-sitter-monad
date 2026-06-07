@@ -1,0 +1,47 @@
+===
+Arithmetic operators
+===
+1 + 2
+3 - 4
+5 * 6
+7 / 8
+9 % 10
+---
+(module)
+
+===
+Comparison operators
+===
+a < b
+a > b
+a <= b
+a >= b
+a == b
+---
+(module)
+
+===
+Boolean operators
+===
+true && false
+true || false
+---
+(module)
+
+===
+Monad operators
+===
+x >>= f
+x <| y
+x |> f
+x |>.method
+---
+(module)
+
+===
+List operators
+===
+a ++ b
+a :: b
+---
+(module)

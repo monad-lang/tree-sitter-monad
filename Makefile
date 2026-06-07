@@ -3,7 +3,7 @@ $(error Windows is not supported)
 endif
 
 LANGUAGE_NAME := tree-sitter-monad
-HOMEPAGE_URL := https://github.com/monad-lang/tree-sitter-monad
+HOMEPAGE_URL := https://tangled.org/monad-lang.org/tree-sitter-monad
 VERSION := 0.1.0
 
 # repository

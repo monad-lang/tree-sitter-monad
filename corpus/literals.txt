@@ -1,0 +1,51 @@
+===
+Integer literals
+===
+42
+---
+(module)
+
+===
+Float literals
+===
+3.14
+---
+(module)
+
+===
+String literals
+===
+"hello world"
+---
+(module)
+
+===
+Character literals
+===
+'c'
+---
+(module)
+
+===
+Boolean literals
+===
+true
+false
+---
+(module)
+
+===
+Hole
+===
+_
+---
+(module)
+
+===
+Typed integer literals
+===
+42i64
+255u8
+3.14f32
+---
+(module)

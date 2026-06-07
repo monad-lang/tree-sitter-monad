@@ -1,0 +1,40 @@
+===
+Simple attribute
+===
+@[test]
+def test_function := True
+---
+(module)
+
+===
+Attribute with string argument
+===
+@[native "add"]
+def native_add (a b : I64) : I64
+---
+(module)
+
+===
+Multiple attributes
+===
+@[test]
+@[partial]
+def test_partial := True
+---
+(module)
+
+===
+Attribute with named arguments
+===
+@[deprecated {since := "1.0", reason := "use new_function"}]
+def old_function := "old"
+---
+(module)
+
+===
+Attribute with nested structures
+===
+@[custom {config := {enabled := true, level := 5}}]
+def custom_function := "custom"
+---
+(module)

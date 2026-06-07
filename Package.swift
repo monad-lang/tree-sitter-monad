@@ -14,7 +14,7 @@ let package = Package(
         .library(name: "TreeSitterMonad", targets: ["TreeSitterMonad"]),
     ],
     dependencies: [
-        .package(name: "SwiftTreeSitter", url: "https://github.com/tree-sitter/swift-tree-sitter", from: "0.9.0"),
+        .package(name: "SwiftTreeSitter", url: "https://tangled.org/monad-lang.org/tree-sitter-monad", from: "0.9.0"),
     ],
     targets: [
         .target(

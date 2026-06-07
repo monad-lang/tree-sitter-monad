@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.13)
 project(tree-sitter-monad
         VERSION "0.1.0"
         DESCRIPTION "Parser for the Monad language"
-        HOMEPAGE_URL "https://github.com/monad-lang/tree-sitter-monad"
+        HOMEPAGE_URL "https://tangled.org/monad-lang.org/tree-sitter-monad"
         LANGUAGES C)
 
 option(BUILD_SHARED_LIBS "Build using shared libraries" ON)

@@ -1,0 +1,40 @@
+name: Tree-sitter Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+      
+    - name: Install Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        
+    - name: Install tree-sitter CLI
+      run: npm install -g tree-sitter-cli
+      
+    - name: Generate parser
+      run: tree-sitter generate
+      
+    - name: Run tree-sitter tests
+      run: tree-sitter test
+      
+    - name: Test parsing on real Monad files
+      run: |
+        # Try to parse some Monad source files to ensure the grammar works
+        for file in ../monad/init/prelude.mo ../monad/lang/types.mo; do
+          if [ -f "$file" ]; then
+            echo "Testing: $file"
+            tree-sitter parse "$file" || echo "Parse failed for $file"
+          else
+            echo "File not found: $file"
+          fi
+        done

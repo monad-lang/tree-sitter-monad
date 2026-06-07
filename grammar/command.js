@@ -3,15 +3,6 @@ const {min1, sep1} = require('./util.js')
 
 
 module.exports = {
-  _visibility: $ => choice('private', 'protected'),
-  _decl_modifiers: $ => seq(
-    min1(
-      $.attributes,
-      repeat1(
-        choice('noncomputable', 'partial', $._visibility, 'unsafe'),
-      ),
-    ),
-  ),
   _decl_id: $ => field('name', prec(10, choice(
     seq($.identifier, token.immediate('.'), $.identifier),
     $.identifier,
@@ -38,31 +29,15 @@ module.exports = {
     optional($._opt_decl_sig),
     optional($._decl_val),
   ),
-  abbrev: $ => seq(
-    'abbrev',
-    $._decl_id,
-    optional($._opt_decl_sig),
-    $._decl_val,
-  ),
+
   def: $ => seq(
     'def',
     $._decl_id,
     optional($._opt_decl_sig),
     $._decl_val,
   ),
-  theorem: $ => seq(
-    'theorem',
-    $._decl_id,
-    $._decl_sig,
-    $._decl_val,
-  ),
-  constant: $ => seq(
-    'constant',
-    $._decl_id,
-    $._decl_sig,
-    optional($._decl_val_simple),
-  ),
-instance: $ => prec.left(seq(
+
+  instance: $ => prec.left(seq(
     'instance',
     optional($._decl_id),
     alias(repeat(choice($._simple_binder_without_type, $._bracketed_binder)), $.binders),
@@ -71,17 +46,7 @@ instance: $ => prec.left(seq(
     field('body', repeat1($.def)),
     '}',
   )),
-  axiom: $ => seq('axiom', $._decl_id, $._decl_sig),
-  example: $ => seq(
-    'example',
-    $._decl_sig,
-    $._decl_val,
-  ),
-  constructor: $ => seq(
-    '|',
-    field('name', $.identifier),
-    optional($._opt_decl_sig),
-  ),
+
   _type_constructor: $ => prec(20, seq(
     field('constructor', $.identifier),
     repeat(choice(
@@ -93,22 +58,7 @@ instance: $ => prec.left(seq(
     optional($._type_spec),
   )),
   _deriving: $ => field('deriving', seq('deriving', sep1($.identifier, ','))),
-  inductive: $ => seq(
-    'inductive',
-    $._decl_id,
-    optional($._opt_decl_sig),
-    optional(':='),
-    optional(field('constructors', repeat1($.constructor))),
-    optional($._deriving),
-  ),
-  class_inductive: $ => seq(
-    'class', 'inductive',
-    $._decl_id,
-    optional($._opt_decl_sig),
-    optional(':='),
-    optional(field('constructors', repeat1($.constructor))),
-    optional($._deriving),
-  ),
+
   _struct_explicit_binder: $ => seq(
     '(',
     field('name', repeat1($.identifier)),
@@ -143,8 +93,8 @@ instance: $ => prec.left(seq(
   ),
   _struct_constructor: $ => seq($.identifier, '::'),
   _extends: $ => field('extends', seq('extends', sep1($._expression, ','))),
-  structure: $ => seq(
-    'structure',
+  struct: $ => seq(
+    'struct',
     $._decl_id,
     alias(repeat($._bracketed_binder), $.binders),
     optional($._extends),
@@ -212,63 +162,14 @@ instance: $ => prec.left(seq(
     ':=',
     field('definition', $._expression),
   ),
-  instance_with_body: $ => seq(
-    'instance',
-    optional($._decl_id),
-    alias(repeat(choice($._simple_binder_without_type, $._bracketed_binder)), $.binders),
-    optional($._type_spec),
-    '{',
-    field('body', repeat($._command)),
-    '}',
-  ),
-  declaration: $ => seq(
-    optional($._decl_modifiers),
-    choice(
-      $.abbrev,
-      $.def,
-      $.theorem,
-      $.constant,
-      $.class,
-      $.instance,
-      $.axiom,
-      $.example,
-      $.inductive,
-      $.class_inductive,
-      $.structure,
-      $.type_decl,
-      $.infix,
-    ),
-  ),
-  section: $ => seq(
-    'section',
-    optional(field('name', $.identifier)),
-    field('body', repeat($._command)),
-    'end',
-    optional($.identifier),
-  ),
-  namespace: $ => seq(
-    'namespace',
-    field('name', $.identifier),
-    field('body', repeat($._command)),
-    'end',
-    $.identifier,
-  ),
-  variable: $ => seq('variable', repeat1($._bracketed_binder)),
-  universe: $ => seq('universe', repeat1($.identifier)),
 
-  attribute: $ => seq(
-    'attribute',
-    '[',
-    sep1(choice($._attribute, seq("-", $._attribute)), ','),
-    ']',
-    field('term', $.identifier),
-  ),
-  export: $ => seq(
-    'export',
-    field('class', $.identifier),
-    '(',
-    repeat1($.identifier),
-    ')',
+  declaration: $ => choice(
+    $.def,
+    $.class,
+    $.instance,
+    $.type_decl,
+    $.struct,
+    $.infix,
   ),
 
   open: $ => seq(
@@ -283,22 +184,8 @@ instance: $ => prec.left(seq(
     $.quoted,
   ),
 
-  builtin_initialize: $ => seq(
-    optional($._visibility),
-    'builtin_initialize',
-    optional(seq($.identifier, $._type_spec, $._left_arrow)),
-    $.do,
-  ),
-
   _command: $ => choice(
     $.declaration,
-    $.section,
-    $.namespace,
-    $.variable,
-    $.universe,
-    $.attribute,
-    $.export,
     $.open,
-    $.builtin_initialize,
   ),
 }

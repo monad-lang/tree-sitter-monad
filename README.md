@@ -8,7 +8,7 @@ Monad is a functional programming language with support for dependent types, typ
 
 ## Features
 
-- **Declarations**: `def`, `type`, `class`, `instance`, `structure`, `infix`
+- **Declarations**: `def`, `type`, `class`, `instance`, `struct`, `infix`
 - **Type system**: Dependent types, implicit/explicit binders, type constraints
 - **Expressions**: Function application, lambda abstractions, `if/then/else`, `match`, binary operators
 - **Do notation**: Monadic sequencing with `do` blocks
@@ -116,9 +116,8 @@ The grammar is organized into modular files under `grammar/`:
 |------|---------|
 | `attr.js` | Attribute syntax (`@[...]`) |
 | `basic.js` | Basic tokens and precedence constants |
-| `command.js` | Top-level declarations (`def`, `type`, `class`, etc.) |
+| `command.js` | Top-level declarations (`def`, `type`, `struct`, `class`, etc.) |
 | `do.js` | Do notation and monadic constructs |
-| `tactic.js` | Tactic syntax (`by`, `apply`, `simp`, etc.) |
 | `term.js` | Terms and expressions |
 | `util.js` | Shared combinators (`sep1`, `sep0`, etc.) |
 
@@ -195,6 +194,44 @@ def example := do {
   y <- transform x;
   return y
 }
+```
+
+### Linear and Affine Types
+
+```monad
+def consume (!x : Resource) : Unit := release x
+
+def maybe_use (?x : Resource) : Unit := if available then use x else noop
+```
+
+### Attributes
+
+```monad
+@[test]
+def test_function := True
+
+@[native "add"]
+def native_add (a b : I64) : I64
+
+@[deprecated {since := "1.0", reason := "use new_function"}]
+def old_function := "old"
+```
+
+### Struct Field Defaults
+
+```monad
+struct Config {
+  debug : Bool := false
+  timeout : I64 := 30
+}
+```
+
+### Term Constructors (Bootstrap Compiler)
+
+```monad
+Term.hole
+Term.type_
+Term.con
 ```
 
 ## License

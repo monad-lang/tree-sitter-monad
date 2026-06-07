@@ -9,13 +9,9 @@ const term = new Parser($ => [
   $.char,
   $.hole,
   $.synthetic_hole,
-  $.sorry,
-  $.cdot,
   $.parenthesized,
-  $.anonymous_constructor,
   $.structure_instance,
   $.explicit,
-  $.forall,
   $.true,
   $.false,
   $.match,
@@ -24,14 +20,16 @@ const term = new Parser($ => [
   $.double_quoted_name,
   $.proj,
   $.arrow,
+  $.term_constructor,
+  $.linear_binder,
+  $.affine_binder,
+  $.attributes,
   $._do_term,
   $._command_term,
   $._notation_term,
-  $._notation_extra_term,
   $.array,
   $.subarray,
   $.range,
-  $.interpolated_string,
 ])
 
 module.exports = {
@@ -43,8 +41,8 @@ module.exports = {
       $._identifier,
       $._escaped_identifier,
     ),
-    number: $ => /\d+/,
-    float: $ => /\d+\.\d*/,
+    number: $ => /\d+(i8|i16|i32|i64|u8|u16|u32|u64|f32|f64)?/,
+    float: $ => /\d+\.\d*(f32|f64)?/,
     string: $ => seq(
       '"',
       repeat(choice($.quoted_char, token.immediate(prec(1, /[^"\n\\]+/)),)),
@@ -53,8 +51,13 @@ module.exports = {
     char: $ => seq("'", choice($.quoted_char, /[^']/), "'"),
     hole: $ => "_",
     synthetic_hole: $ => seq("?", choice($.identifier, $.hole)),
-    sorry: $ => 'sorry',
-    cdot: $ => choice('.', '·'),
+    // Term constructors for bootstrap compiler
+    term_constructor: $ => seq(
+      'Term',
+      '.',
+      choice('type_', 'hole', 'ntv', 'con', 'var', 'lit', 'app', 'let', 'match'),
+    ),
+
     type_ascription: $ => seq(':', field('type', $._expression)),
     tuple_tail: $ => seq(',', sep1($._expression, ',')),
     parenthesized: $ => seq(
@@ -64,7 +67,7 @@ module.exports = {
       ),
       ')',
     ),
-    anonymous_constructor: $ => seq('⟨', sep0($._expression, ','), '⟩'),
+
     _structure_instance_field: $ => seq(
       field('name', $.identifier),
       ':=',
@@ -102,10 +105,30 @@ module.exports = {
       field('type', $._expression),
       ']',
     ),
+    // Linear binder: (!x : Type)
+    linear_binder: $ => seq(
+      '(',
+      '!',
+      field('name', $.identifier),
+      ':',
+      field('type', $._expression),
+      ')',
+    ),
+    // Affine binder: (?x : Type)
+    affine_binder: $ => seq(
+      '(',
+      '?',
+      field('name', $.identifier),
+      ':',
+      field('type', $._expression),
+      ')',
+    ),
     _bracketed_binder: $ => choice(
       $.explicit_binder,
       $.implicit_binder,
       $.instance_binder,
+      $.linear_binder,
+      $.affine_binder,
     ),
     proj: $ => seq(
       field('term', prec(PREC.lead, $._term)),
@@ -114,15 +137,7 @@ module.exports = {
     ),
     arrow: $ => prec.right(25, seq($._term, choice('->', '→'), $._expression)),
 
-    forall: $ => prec(-4, seq(
-      '∀',
-      field(
-        'binders',
-        alias(repeat1(choice($._simple_binder, $._bracketed_binder)), $.binders),
-      ),
-      ',',
-      field('body', $._expression),
-    )),
+
 
     _simple_binder: $ => seq(
       field('name', repeat1($._binder_ident)),
@@ -170,19 +185,9 @@ module.exports = {
       $._let_id_decl, $._let_pattern_decl,
     ),
 
-    _attr_kind: $ => choice('scoped', 'local'),
-    _attr_instance: $ => seq(optional($._attr_kind), $._attribute),
-    attributes: $ => seq('@[', sep1($._attr_instance, ','), ']'),
+    attributes: $ => seq('@[', sep1($._attribute, ','), ']'),
 
-    named_argument: $ => seq(
-      '(', $.identifier, ':=', $._expression, ')',
-    ),
-    ellipsis: $ => '..',
-    _argument: $ => choice(
-      $.named_argument,
-      $.ellipsis,
-      prec(PREC.arg, $._expression),
-    ),
+    _argument: $ => prec(PREC.arg, $._expression),
 
     _command_term: $ => choice(
       $.quoted,
@@ -205,14 +210,7 @@ module.exports = {
       prec(40, $._term),
     )),
 
-    subtype: $ => seq(
-      '{',
-      $.identifier,
-      optional(seq(':', $._term)),
-      '//',
-      $._expression,
-      '}',
-    ),
+
 
     list: $ => seq('[', sep0($._expression, ','), ']'),
 
@@ -229,25 +227,14 @@ module.exports = {
     _notation_term: $ => choice(
       $.product,
       $.unary_expression,
-      $.subtype,
       $.list,
       $.assumption_literal,
     ),
 
     
-    exists: $ => prec(-4, seq(
-      '∃',
-      field(
-        'binders',
-        alias(repeat1(choice($._simple_binder, $._bracketed_binder)), $.binders),
-      ),
-      ',',
-      field('body', $._expression),
-    )),
 
-    _notation_extra_term: $ => choice(
-      $.exists,
-    ),
+
+
 
     
     array: $ => seq('#[', sep0($._expression, ','), ']'),
@@ -286,13 +273,6 @@ module.exports = {
     ),
 
     
-    interpolated_string: $ => seq(
-      's!"',
-      repeat(choice(/[^"]/, $.quoted_char, $.interpolation)),
-      '"',
-    ),
-    interpolation: $ => seq(
-      '{', $._expression, '}'
-    ),
+
   },
 }

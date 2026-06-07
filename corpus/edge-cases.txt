@@ -1,0 +1,53 @@
+===
+Do-notation without semicolons
+===
+do {
+  x <- get_value
+  y <- process x
+  return y
+}
+---
+(module)
+
+===
+Empty do block
+===
+do {
+  return 42
+}
+---
+(module)
+
+===
+Nested match
+===
+match x {
+  Some y => match y {
+    Some z => z
+    None => 0
+  }
+  None => 0
+}
+---
+(module)
+
+===
+Complex type
+===
+{A : Type, B : Type} -> (A -> B) -> A -> B
+---
+(module)
+
+===
+Qualified identifier
+===
+std.list.map
+---
+(module)
+
+===
+Term constructor
+===
+Term.hole
+---
+(module)
