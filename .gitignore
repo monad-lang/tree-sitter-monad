@@ -6,7 +6,7 @@ Cargo.lock
 build/
 prebuilds/
 node_modules/
-package-lock.json
+pnpm-lock.yaml
 
 # Swift artifacts
 .build/
@@ -48,6 +48,10 @@ zig-out/
 *.tar.gz
 *.tgz
 *.zip
+
+# devenv
+.devenv/
+devenv.local.nix
 
 # Agents
 .opencode

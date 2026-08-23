@@ -86,26 +86,26 @@ Then run `hx --grammar fetch` and `hx --grammar build`.
 - [Node.js](https://nodejs.org/) >= 18
 - [tree-sitter CLI](https://tree-sitter.github.io/tree-sitter/creating-parsers)
 
-Or use [devbox](https://www.jetify.com/devbox):
+Or use [devenv](https://devenv.sh):
 
 ```bash
-devbox shell
+devenv shell
 ```
 
 ### Commands
 
 ```bash
 # Install dependencies
-npm install
+pnpm install
 
 # Generate the parser
-npx tree-sitter generate
+pnpm exec tree-sitter generate
 
 # Run tests
-npm test
+pnpm exec tree-sitter test
 
 # Start the playground
-npm start
+pnpm start
 ```
 
 ## Grammar Structure
