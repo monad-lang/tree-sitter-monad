@@ -14,210 +14,172 @@ const do_ = require('./grammar/do.js')
 const term = require('./grammar/term.js')
 const {sep1} = require('./grammar/util.js')
 
+// Precedence numbers mirror core/src/parser.rs operator_precedence exactly
+// (higher number binds tighter). `apply` (juxtaposition application) binds
+// tighter than every binary operator.
 const PREC = {
-  dollar: -5,
-  equal: -3,
-  compare: -2,
-  apply: -1,
-  multitype: -1,
-
-  opop: 13,
-  or: 14,
-  and: 15,
-  eqeq: 16,
-  plus: 17,
-  times: 18,
-  unary: 1000,
-  power: 20,
-
-  name: 30,
+  arrow: 3,
+  pipe: 5,
+  bind: 10,
+  dot: 12,
+  applicative: 15,
+  alt: 20,
+  or: 25,
+  and: 30,
+  compare: 40,
+  append: 50,
+  shift: 60,
+  add: 65,
+  mul: 70,
+  backtick: 80,
+  apply: 90,
 }
-
 
 module.exports = grammar({
   name: "monad",
 
   extras: $ => [
     $.comment,
+    $.doc_comment,
     /\s/,
     /\n/,
   ],
 
-
-
-  conflicts: $ => [
-    [$._binder_ident],
-    [$._binder_ident, $._term],
-    [$._let_id_lhs, $._term],
-    [$._let_id_lhs],
-    [$._simple_binder],
-    [$.assign, $._term],
-    [$.identifier],
-    [$.proj, $._expression],
-    [$._class_signature],
-    [$._struct_simple_binder, $._binder_ident],
-    [$.instance],
-    [$.synthetic_hole, $.affine_binder],
-    [$._term, $.linear_binder],
-  ],
-
   word: $ => $._identifier,
 
-  rules: {
-    // Parser for the Monad language
-    module: $ => seq(
-      repeat($.use),
-      repeat($._command),
-    ),
-    use: $ => seq('use', field('module', $.identifier)),
+  conflicts: $ => [
+    [$.implicit_param, $._term],
+    [$.struct_field, $.implicit_param],
+    [$._cons_param, $._term],
+  ],
 
-    parameters: $ => seq(
-      repeat1(
-        choice(
-          field('name', $.identifier),
-          $.hole,
-          $._bracketed_binder,
-        )
-      ),
-    ),
+  rules: {
+    // Declarations of every kind interleave freely in file order
+    // (core/src/parser.rs decls_parser: many0(decl_parser)).
+    module: $ => repeat($._decl),
 
     _expression: $ => choice(
       $.apply,
-      $.comparison,
-      $.let,
       $.binary_expression,
-      $.neg,
-      $.fun,
+      $.arrow,
+      $.backtick_call,
       $._term,
+    ),
 
+    // `let x := v; let y := w; in body` — always `in`-terminated
+    // (core/src/parser.rs let_parser).
+    let_binding: $ => seq(
+      field('name', $.identifier),
+      optional($.type_ascription),
+      ':=',
+      field('value', $._expression),
+      optional(';'),
+    ),
+    // Each binding owns its own optional trailing `;` (core/src/parser.rs
+    // let_parser: `many1` of bindings, each individually `;`-terminated) —
+    // do not also separate with sep1, which would double-represent the
+    // same semicolon and create an unresolvable shift/reduce ambiguity.
+    let: $ => prec.right(seq(
+      'let',
+      field('bindings', repeat1($.let_binding)),
+      'in',
+      field('body', $._expression),
+    )),
+
+    if_then_else: $ => seq(
+      'if',
+      field('condition', $._expression),
+      'then',
+      field('consequence', $._expression),
+      'else',
+      field('alternative', $._expression),
+    ),
+
+    // Left-recursive binary application (curried, matching real
+    // core/src/term.rs App/apps — n-ary application really is nested
+    // binary App nodes), NOT a flat `repeat1`. A flat
+    // `field('arguments', repeat1($._argument))` looks equivalent but, in
+    // any context where an outer construct also has a bare-identifier-
+    // starting repeat in its FOLLOW set (a `let` binding list, the
+    // top-level decl list, ...), silently truncates to a single argument —
+    // tree-sitter resolves that boundary "reduce apply now" without ever
+    // reporting it as a conflict, so it's not fixable by tuning precedence
+    // on the flat form. The left-recursive form doesn't have this failure
+    // mode.
+    apply: $ => prec.left(PREC.apply, seq(
+      field('name', choice($.apply, $._term)),
+      field('argument', $._apply_argument),
+    )),
+    // Same as `_term` but without any `{`-led atom
+    // (`implicit_param`/`struct_literal`/`struct_update`). Allowing those
+    // as a bare, unparenthesized application argument makes the parser try
+    // to extend a return-type/argument chain into any `{` that follows —
+    // which collides badly with `def`'s own `{ ... }` do-block-body
+    // alternative (`def f (...) : T { stmts }`) and, empirically, wins the
+    // GLR tie against the do-block-body far more often across real files
+    // than the (rare) case of an unparenthesized struct literal as a call
+    // argument actually needs it. A struct literal is still reachable as
+    // an argument when parenthesized: `f x (Shape.rect { h := 3 })`.
+    _apply_argument: $ => choice(
+      $.module_path,
+      $.identifier,
+      $.number,
+      $.hex_number,
+      $.float,
+      $.string,
+      $.char,
+      $.hole,
+      $.sort,
+      $.list,
+      $.match_term,
+      $.lambda,
+      $.quote_term,
+      $.macro_call,
+      $.parenthesized,
+      $.let,
       $.do,
       $.if_then_else,
     ),
 
-    let: $ => prec.left(seq(
-      'let',
-      field('name', $.identifier),
-      optional(field('parameters', $.parameters)),
-      optional(seq(':', field('type', $._expression))),
-      ':=',
-      field('value', $._expression),
-      choice($._newline, ';'),
-      optional(field('body', $._expression)),
-    )),
-
-    conditional_when: $ => prec.right(seq(
-      'if',
-      $._expression,
-      'then',
-      $._expression,
-    )),
-
-    for_in: $ => seq(
-      'for',
-      $.identifier,
-      'in',
-      field('iterable', $._expression),
-      field('body', $.do),
-    ),
-
-    assign: $ => seq(
-      field('name', $.identifier),
-      ':=',
-      field('value', $._expression),
-    ),
-
-    let_mut: $ => seq(
-      'let', 'mut',
-      $.parameters,
-      choice($._left_arrow, ':='),
-      field('value', $._expression),
-    ),
-
-    let_bind: $ => seq(
-      'let',
-      field('name', $.identifier),
-      $._left_arrow,
-      field('value', $._expression),
-    ),
-
-
-    fun: $ => prec.right(seq(
-      choice('fn', 'λ', '\\'),
-      seq(
-        $.parameters,
-        '=>',
-        $._expression,
-      ),
-    )),
-
-    apply: $ => choice($._apply, $._dollar),
-
-    _apply: $ => prec(PREC.apply, seq(
-      field('name', $._term),
-      field('arguments', repeat1($._argument)),
-    )),
-
-    _dollar: $ => prec.right(PREC.dollar, seq(
-      field('name', $._expression),
-      '$',
-      field('argument', $._expression),
-    )),
-
-    neg: $ => prec(PREC.unary, seq('-', $._expression)),
-
     binary_expression: $ => choice(
-      prec.right(PREC.power, seq($._expression, '^', $._expression)),
-      prec.left(PREC.times, seq($._expression, '*', $._expression)),
-      prec.left(PREC.times, seq($._expression, '/', $._expression)),
-      prec.left(PREC.times, seq($._expression, '%', $._expression)),
-      prec.left(PREC.plus, seq($._expression, '+', $._expression)),
-      prec.left(PREC.plus, seq($._expression, '-', $._expression)),
-
-
-
-      prec.left(PREC.or, seq($._expression, '||', $._expression)),
-      prec.left(PREC.and, seq($._expression, '&&', $._expression)),
-      prec.left(PREC.eqeq, seq($._expression, '==', $._expression)),
-
-      prec.left(PREC.opop, seq($._expression, '++', $._expression)),
-      prec.left(PREC.opop, seq($._expression, '::', $._expression)),
-
-      prec.left(PREC.opop, seq($._expression, '|>', $._expression)),
-      prec.left(PREC.opop, seq($._expression, '|>.', $._expression)),
-      prec.right(PREC.dollar, seq($._expression, '<|', $._expression)),
-
-      prec.left(PREC.opop, seq($._expression, '<|>', $._expression)),
-      prec.left(PREC.opop, seq($._expression, '>>', $._expression)),
-      prec.left(PREC.opop, seq($._expression, '>>=', $._expression)),
-      prec.left(PREC.opop, seq($._expression, '<*>', $._expression)),
-      prec.left(PREC.opop, seq($._expression, '<*', $._expression)),
-      prec.left(PREC.opop, seq($._expression, '*>', $._expression)),
-      prec.left(PREC.opop, seq($._expression, '<$>', $._expression)),
-
-      prec.left(PREC.equal, seq($._expression, '=', $._expression)),
+      prec.left(PREC.pipe, seq($._expression, '|>', $._expression)),
+      prec.right(PREC.pipe, seq($._expression, '<|', $._expression)),
+      prec.right(PREC.bind, seq($._expression, '>>=', $._expression)),
+      prec.right(PREC.dot, seq($._expression, '.', $._expression)),
+      prec.left(PREC.applicative, seq($._expression, '<*>', $._expression)),
+      prec.left(PREC.alt, seq($._expression, '<|>', $._expression)),
+      prec.right(PREC.or, seq($._expression, '||', $._expression)),
+      prec.right(PREC.and, seq($._expression, '&&', $._expression)),
+      prec.left(PREC.compare, seq($._expression, '==', $._expression)),
+      prec.left(PREC.compare, seq($._expression, '!=', $._expression)),
+      prec.left(PREC.compare, seq($._expression, '=', $._expression)),
+      prec.left(PREC.compare, seq($._expression, '<', $._expression)),
+      prec.left(PREC.compare, seq($._expression, '>', $._expression)),
+      prec.left(PREC.compare, seq($._expression, '<=', $._expression)),
+      prec.left(PREC.compare, seq($._expression, '>=', $._expression)),
+      prec.right(PREC.append, seq($._expression, '++', $._expression)),
+      prec.right(PREC.append, seq($._expression, '@', $._expression)),
+      prec.left(PREC.shift, seq($._expression, '>>', $._expression)),
+      prec.left(PREC.shift, seq($._expression, '<<', $._expression)),
+      prec.left(PREC.add, seq($._expression, '+', $._expression)),
+      prec.left(PREC.add, seq($._expression, '-', $._expression)),
+      prec.left(PREC.mul, seq($._expression, '*', $._expression)),
+      prec.left(PREC.mul, seq($._expression, '/', $._expression)),
     ),
 
-    comparison: $ => prec.left(PREC.compare, seq(
-      $._expression,
-      choice(
-        '<',
-        '>',
-        '≤',
-        '≥',
-        '<=',
-        '>=',
-      ),
-      $._expression,
-    )),
-
+    // `//` line comments and `/* */` block comments. `///` doc comments are
+    // a distinct token (see doc_comment) so highlighting can tell them
+    // apart — a `//` immediately followed by a third `/` is NOT an
+    // ordinary comment.
     comment: $ => token(choice(
-      seq('//', /.*/),
+      seq('//', optional(/[^\/\n][^\n]*/)),
       seq('/*', /[\s\S]*?\*\//),
     )),
+    doc_comment: $ => token(seq('///', /[^\n]*/)),
 
-    _identifier: $ => /[_a-zA-ZͰ-ϿĀ-ſ\U0001D400-\U0001D7FF][_`'`a-zA-Z0-9Ͱ-ϿĀ-ſ∇!?\u2070-\u209F\U0001D400-\U0001D7FF]*/,
-    _escaped_identifier: $ =>  /«[^»]*»/,
-    _newline: $ => /\n/,
+    // core/src/parser.rs identifier(): ASCII alpha/underscore start,
+    // alphanumeric/underscore continuation.
+    _identifier: $ => /[a-zA-Z_][a-zA-Z0-9_]*/,
 
     ...attr,
     ...command,

@@ -1,0 +1,156 @@
+===
+Do-notation, single return statement
+===
+
+def f : IO I64 := do {
+  return 42
+}
+
+---
+
+(module
+  (def
+    (identifier)
+    (apply
+      (identifier)
+      (identifier))
+    (do
+      (do_return
+        (number)))))
+
+===
+Nested match
+===
+
+def f := match x {
+  Some y => match y {
+    Some z => z,
+    None => 0,
+  },
+  None => 0,
+}
+
+---
+
+(module
+  (def
+    (identifier)
+    (match_term
+      (identifier)
+      (match_case
+        (constructor_name
+          (identifier))
+        (identifier)
+        (match_term
+          (identifier)
+          (match_case
+            (constructor_name
+              (identifier))
+            (identifier)
+            (identifier))
+          (match_case
+            (constructor_name
+              (identifier))
+            (number))))
+      (match_case
+        (constructor_name
+          (identifier))
+        (number)))))
+
+===
+Forall-style implicit-param type
+===
+
+def f : {A : Type} -> A -> A := \x => x
+
+---
+
+(module
+  (def
+    (identifier)
+    (arrow
+      (implicit_param
+        (identifier)
+        (identifier))
+      (arrow
+        (identifier)
+        (identifier)))
+    (lambda
+      (lambda_param
+        (identifier))
+      (identifier))))
+
+===
+Qualified identifier chain
+===
+
+def f := std.list.map
+
+---
+
+(module
+  (def
+    (identifier)
+    (module_path
+      (identifier)
+      (identifier)
+      (identifier))))
+
+===
+Negative literal vs. subtraction
+===
+
+def f := 5 - 3
+def g := -1
+def h := [5, -3, 2]
+
+---
+
+(module
+  (def
+    (identifier)
+    (binary_expression
+      (number)
+      (number)))
+  (def
+    (identifier)
+    (number))
+  (def
+    (identifier)
+    (list
+      (number)
+      (number)
+      (number))))
+
+===
+Hex and negative hex literals
+===
+
+def f := 0xBADBEEF
+def g := -0x10
+
+---
+
+(module
+  (def
+    (identifier)
+    (hex_number))
+  (def
+    (identifier)
+    (hex_number)))
+
+===
+Decl-level macro call
+===
+
+reflect_type_info! T derive_lens_meta
+
+---
+
+(module
+  (macro_call_decl
+    (macro_call_decl
+      (macro_call_decl
+        (identifier))
+      (identifier))
+    (identifier)))

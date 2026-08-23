@@ -1,0 +1,107 @@
+===
+Linear parameter
+===
+
+def consume (!x : Resource) : Unit := release x
+
+---
+
+(module
+  (def
+    (identifier)
+    (param_group
+      (multiplicity)
+      (identifier)
+      (identifier))
+    (identifier)
+    (apply
+      (identifier)
+      (identifier))))
+
+===
+Affine parameter
+===
+
+def maybe_use (?x : Resource) : Unit := if available then use x else noop
+
+---
+
+(module
+  (def
+    (identifier)
+    (param_group
+      (multiplicity)
+      (identifier)
+      (identifier))
+    (identifier)
+    (if_then_else
+      (identifier)
+      (apply
+        (identifier)
+        (identifier))
+      (identifier))))
+
+===
+Erased parameter
+===
+
+def phantom (%x : Type) : Unit := unit
+
+---
+
+(module
+  (def
+    (identifier)
+    (param_group
+      (multiplicity)
+      (identifier)
+      (identifier))
+    (identifier)
+    (identifier)))
+
+===
+Mixed linear and regular parameters
+===
+
+def process (!input : Resource) (output : String) : Result := process_resource input output
+
+---
+
+(module
+  (def
+    (identifier)
+    (param_group
+      (multiplicity)
+      (identifier)
+      (identifier))
+    (param_group
+      (identifier)
+      (identifier))
+    (identifier)
+    (apply
+      (apply
+        (identifier)
+        (identifier))
+      (identifier))))
+
+===
+Linear struct field
+===
+
+struct Buffer {
+  !data : String,
+  size : I64,
+}
+
+---
+
+(module
+  (struct
+    (identifier)
+    (struct_field
+      (multiplicity)
+      (identifier)
+      (identifier))
+    (struct_field
+      (identifier)
+      (identifier))))

@@ -3,14 +3,18 @@ Line comment
 ===
 // This is a line comment
 ---
-(module)
+
+(module
+  (comment))
 
 ===
 Block comment
 ===
 /* This is a block comment */
 ---
-(module)
+
+(module
+  (comment))
 
 ===
 Multi-line block comment
@@ -21,7 +25,9 @@ Multi-line block comment
  * block comment
  */
 ---
-(module)
+
+(module
+  (comment))
 
 ===
 Code with comments
@@ -29,4 +35,17 @@ Code with comments
 // Function definition
 def add (a b : I64) : I64 := a + b  // Addition
 ---
-(module)
+
+(module
+  (comment)
+  (def
+    (identifier)
+    (param_group
+      (identifier)
+      (identifier)
+      (identifier))
+    (identifier)
+    (binary_expression
+      (identifier)
+      (identifier)))
+  (comment))

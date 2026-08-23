@@ -1,44 +1,43 @@
-const {sep1} = require('./util.js')
+const {sep0} = require('./util.js')
 
+// Real attribute syntax is `#[...]` (see core/src/parser.rs
+// attribute_parser/attr_arg_parser/vis_parser). The old `@[...]` delimiter
+// was a legacy form that's since been freed up as a general infix operator
+// (`@`), so `#[` is the only valid attribute bracket.
 module.exports = {
-  // Attribute value can be string, identifier, number, or nested structures
-  _attr_value: $ => choice(
+  // A single positional/named/group argument inside `#[...]`.
+  attr_arg: $ => choice(
+    $.attr_named_block,
+    $.attr_group,
     $.string,
-    $.identifier,
     $.number,
-    $._attr_group,
-    $._attr_nested,
+    $.identifier,
   ),
-  
-  // Group of attribute arguments: [arg1, arg2, ...]
-  _attr_group: $ => seq(
-    '[',
-    sep1($._attr_value, ','),
-    ']',
-  ),
-  
-  // Named attribute argument: name := value
-  _attr_named_arg: $ => seq(
-    field('name', $.identifier),
-    token.immediate(':'),
-    token.immediate('='),
-    field('value', $._attr_value),
-  ),
-  
-  // Nested attribute structure: {name := value, ...}
-  _attr_nested: $ => seq(
+
+  // `{ name := value, name2 := value2 }`
+  attr_named_block: $ => seq(
     '{',
-    sep1($._attr_named_arg, ','),
+    sep0(seq(field('name', $.identifier), ':=', field('value', $.attr_arg)), ','),
     '}',
   ),
-  
-  // Single attribute: name or name(arg1, arg2, ...)
-  _attribute: $ => seq(
-    field('name', $.identifier),
-    optional(seq(
-      '(',
-      optional(sep1($._attr_value, ',')),
-      ')',
-    )),
+
+  // `[ item1, item2 ]`
+  attr_group: $ => seq(
+    '[',
+    sep0($.attr_arg, ','),
+    ']',
   ),
+
+  // `#[name arg1 arg2 ...]` — args are space-separated, zero or more.
+  attribute: $ => seq(
+    '#[',
+    field('name', $.identifier),
+    repeat(field('argument', $.attr_arg)),
+    ']',
+  ),
+
+  // Attributes stack: `#[a]\n#[b]\ndef ...`
+  attributes: $ => repeat1($.attribute),
+
+  visibility: $ => choice('pub', 'priv'),
 }

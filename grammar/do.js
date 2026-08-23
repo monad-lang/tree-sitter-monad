@@ -1,37 +1,42 @@
-const {PREC} = require('./basic.js')
 const {sep1} = require('./util.js')
 
+// do-notation: `do { let name <- action; let x := value; return value }`.
+// Both binding forms start with `let`, distinguished by `<-` vs `:=`
+// (core/src/parser.rs do_statement). ASCII `<-` only — no unicode arrow.
 module.exports = {
-  _left_arrow: $ => choice('<-', '←'),
+  do_return: $ => prec.left(seq(
+    'return', field('value', $._expression),
+  )),
 
-  do_return: $ => prec.left(PREC.lead,
-    seq('return', field('value', $._expression)),
-  ),
-
-  do_let: $ => prec(10, seq(
+  do_bind: $ => prec.left(seq(
     'let',
     field('name', $.identifier),
-    ':=',
+    optional($.type_ascription),
+    '<-',
     field('value', $._expression),
   )),
 
-  do_bind: $ => prec(10, seq(
+  do_let: $ => prec.left(seq(
+    'let',
     field('name', $.identifier),
-    $._left_arrow,
+    optional($.type_ascription),
+    ':=',
     field('value', $._expression),
   )),
 
   _do_statement: $ => choice(
     $.do_return,
-    $.do_let,
     $.do_bind,
+    $.do_let,
     $._expression,
   ),
 
-  do: $ => prec(PREC.lead, seq(
+  _do_statements: $ => sep1($._do_statement, ';'),
+
+  do: $ => seq(
     'do',
     '{',
-    field('statements', optional(sep1($._do_statement, ';'))),
+    field('statements', optional($._do_statements)),
     '}',
-  )),
+  ),
 }

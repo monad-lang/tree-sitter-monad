@@ -1,0 +1,179 @@
+===
+Arithmetic operators
+===
+
+def a := 1 + 2
+def b := 3 - 4
+def c := 5 * 6
+def d := 7 / 8
+
+---
+
+(module
+  (def
+    (identifier)
+    (binary_expression
+      (number)
+      (number)))
+  (def
+    (identifier)
+    (binary_expression
+      (number)
+      (number)))
+  (def
+    (identifier)
+    (binary_expression
+      (number)
+      (number)))
+  (def
+    (identifier)
+    (binary_expression
+      (number)
+      (number))))
+
+===
+Comparison and equality operators
+===
+
+def a := x < y
+def b := x > y
+def c := x <= y
+def d := x >= y
+def e := x == y
+def f := x != y
+
+---
+
+(module
+  (def
+    (identifier)
+    (binary_expression
+      (identifier)
+      (identifier)))
+  (def
+    (identifier)
+    (binary_expression
+      (identifier)
+      (identifier)))
+  (def
+    (identifier)
+    (binary_expression
+      (identifier)
+      (identifier)))
+  (def
+    (identifier)
+    (binary_expression
+      (identifier)
+      (identifier)))
+  (def
+    (identifier)
+    (binary_expression
+      (identifier)
+      (identifier)))
+  (def
+    (identifier)
+    (binary_expression
+      (identifier)
+      (identifier))))
+
+===
+Boolean operators
+===
+
+def a := true && false
+def b := true || false
+
+---
+
+(module
+  (def
+    (identifier)
+    (binary_expression
+      (identifier)
+      (identifier)))
+  (def
+    (identifier)
+    (binary_expression
+      (identifier)
+      (identifier))))
+
+===
+Monad and pipe operators
+===
+
+def a := x >>= f
+def b := x <| y
+def c := x |> f
+def d := x <*> y
+def e := x <|> y
+
+---
+
+(module
+  (def
+    (identifier)
+    (binary_expression
+      (identifier)
+      (identifier)))
+  (def
+    (identifier)
+    (binary_expression
+      (identifier)
+      (identifier)))
+  (def
+    (identifier)
+    (binary_expression
+      (identifier)
+      (identifier)))
+  (def
+    (identifier)
+    (binary_expression
+      (identifier)
+      (identifier)))
+  (def
+    (identifier)
+    (binary_expression
+      (identifier)
+      (identifier))))
+
+===
+Append and dot operators
+===
+
+def a := xs ++ ys
+def b := record.field
+
+---
+
+(module
+  (def
+    (identifier)
+    (binary_expression
+      (identifier)
+      (identifier)))
+  (def
+    (identifier)
+    (module_path
+      (identifier)
+      (identifier))))
+
+===
+Shift operators
+===
+
+def a := x >> y
+def b := x << y
+
+---
+
+(module
+  (def
+    (identifier)
+    (binary_expression
+      (identifier)
+      (identifier)))
+  (def
+    (identifier)
+    (binary_expression
+      (identifier)
+      (identifier))))

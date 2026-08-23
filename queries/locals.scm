@@ -1,39 +1,40 @@
 ;
-; Lambda parameters
+; Scopes
 ;
-(parameters) @local
+(def) @local.scope
+(class_method) @local.scope
+(instance) @local.scope
+(lambda) @local.scope
+(let) @local.scope
+(do) @local.scope
+(match_case) @local.scope
 
 ;
 ; Let bindings
 ;
-(let) @local
-(let name: (identifier) @local)
+(let_binding name: (identifier) @local.definition)
 
 ;
-; Function parameters
+; Function / lambda / class-type parameters
 ;
-(explicit_binder name: (identifier) @local)
-(implicit_binder name: (identifier) @local)
-(instance_binder name: (identifier) @local)
-(linear_binder name: (identifier) @local)
-(affine_binder name: (identifier) @local)
+(param_group name: (identifier) @local.definition)
+(implicit_param name: (identifier) @local.definition)
+(lambda_param (identifier) @local.definition)
 
 ;
-; Match parameters
+; Match-case bound names
 ;
-(match_alt lhs: (identifier) @local)
+(match_case arguments: (identifier) @local.definition)
+(field_pattern name: (identifier) @local.definition)
+(field_pattern binder: (identifier) @local.definition)
 
 ;
-; Do bind variables
+; Do-notation bindings
 ;
-(do_bind name: (identifier) @local)
+(do_bind name: (identifier) @local.definition)
+(do_let name: (identifier) @local.definition)
 
 ;
-; Do let bindings
+; References
 ;
-(do_let name: (identifier) @local)
-
-;
-; Forall bound variables
-;
-; TODO: Add binders support
+(identifier) @local.reference

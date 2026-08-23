@@ -1,0 +1,205 @@
+===
+Arrow type
+===
+
+def f : A -> B := g
+
+---
+
+(module
+  (def
+    (identifier)
+    (arrow
+      (identifier)
+      (identifier))
+    (identifier)))
+
+===
+Chained arrow type
+===
+
+def f : A -> B -> C := g
+
+---
+
+(module
+  (def
+    (identifier)
+    (arrow
+      (identifier)
+      (arrow
+        (identifier)
+        (identifier)))
+    (identifier)))
+
+===
+Implicit parameter
+===
+
+def identity {A : Type} (x : A) : A := x
+
+---
+
+(module
+  (def
+    (identifier)
+    (implicit_param
+      (identifier)
+      (identifier))
+    (param_group
+      (identifier)
+      (identifier))
+    (identifier)
+    (identifier)))
+
+===
+Type application
+===
+
+def f : List I64 := empty
+
+---
+
+(module
+  (def
+    (identifier)
+    (apply
+      (identifier)
+      (identifier))
+    (identifier)))
+
+===
+Forall type
+===
+
+def f : {A : Type} -> A -> A := \x => x
+
+---
+
+(module
+  (def
+    (identifier)
+    (arrow
+      (implicit_param
+        (identifier)
+        (identifier))
+      (arrow
+        (identifier)
+        (identifier)))
+    (lambda
+      (lambda_param
+        (identifier))
+      (identifier))))
+
+===
+Class with constraint
+===
+
+class [Functor F] Applicative (F : Type -> Type) {
+  def pure : A -> F A
+  def apply : F (A -> B) -> F A -> F B
+}
+
+---
+
+(module
+  (class
+    (type_constraints
+      (type_constraint
+        (apply
+          (identifier)
+          (identifier))))
+    (identifier)
+    (identifier)
+    (arrow
+      (identifier)
+      (identifier))
+    (class_method
+      (identifier)
+      (arrow
+        (identifier)
+        (apply
+          (identifier)
+          (identifier))))
+    (class_method
+      (identifier)
+      (arrow
+        (apply
+          (identifier)
+          (parenthesized
+            (arrow
+              (identifier)
+              (identifier))))
+        (arrow
+          (apply
+            (identifier)
+            (identifier))
+          (apply
+            (identifier)
+            (identifier)))))))
+
+===
+Instance with constraint
+===
+
+instance [Add A] Add (List A) {
+  def add (a b : List A) : List A := List.append a b
+}
+
+---
+
+(module
+  (instance
+    (type_constraints
+      (type_constraint
+        (apply
+          (identifier)
+          (identifier))))
+    (identifier)
+    (parenthesized
+      (apply
+        (identifier)
+        (identifier)))
+    (def
+      (identifier)
+      (param_group
+        (identifier)
+        (identifier)
+        (apply
+          (identifier)
+          (identifier)))
+      (apply
+        (identifier)
+        (identifier))
+      (apply
+        (apply
+          (module_path
+            (identifier)
+            (identifier))
+          (identifier))
+        (identifier)))))
+
+===
+Type declaration with parameterized constructors
+===
+
+type Result E A {
+  ok (a : A),
+  err (e : E),
+}
+
+---
+
+(module
+  (type_decl
+    (identifier)
+    (identifier)
+    (identifier)
+    (constructor
+      (identifier)
+      (identifier)
+      (identifier))
+    (constructor
+      (identifier)
+      (identifier)
+      (identifier))))

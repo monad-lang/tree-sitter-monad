@@ -1,0 +1,185 @@
+===
+Basic function declaration
+===
+
+def add (a b : I64) : I64 := a + b
+
+---
+
+(module
+  (def
+    (identifier)
+    (param_group
+      (identifier)
+      (identifier)
+      (identifier))
+    (identifier)
+    (binary_expression
+      (identifier)
+      (identifier))))
+
+===
+Type declaration
+===
+
+type Bool {
+  true,
+  false,
+}
+
+---
+
+(module
+  (type_decl
+    (identifier)
+    (constructor
+      (identifier))
+    (constructor
+      (identifier))))
+
+===
+Struct declaration
+===
+
+struct Point {
+  x : I64,
+  y : I64,
+}
+
+---
+
+(module
+  (struct
+    (identifier)
+    (struct_field
+      (identifier)
+      (identifier))
+    (struct_field
+      (identifier)
+      (identifier))))
+
+===
+Class and instance
+===
+
+class Show A {
+  def show : A -> String
+}
+
+instance Show I64 {
+  def show (a : I64) : String := I64.to_string a
+}
+
+---
+
+(module
+  (class
+    (identifier)
+    (identifier)
+    (class_method
+      (identifier)
+      (arrow
+        (identifier)
+        (identifier))))
+  (instance
+    (identifier)
+    (identifier)
+    (def
+      (identifier)
+      (param_group
+        (identifier)
+        (identifier))
+      (identifier)
+      (apply
+        (module_path
+          (identifier)
+          (identifier))
+        (identifier)))))
+
+===
+Infix operator
+===
+
+infix (+) := I64.add
+
+---
+
+(module
+  (infix
+    (module_path
+      (identifier)
+      (identifier))))
+
+===
+Module use with filter
+===
+
+use std.list {map, filter}
+open IO {println}
+
+---
+
+(module
+  (use
+    (module_path
+      (identifier)
+      (identifier))
+    (use_filter
+      (use_item
+        (identifier))
+      (use_item
+        (identifier))))
+  (open
+    (identifier)
+    (use_filter
+      (use_item
+        (identifier)))))
+
+===
+defmacro and decls block
+===
+
+defmacro derive_lens T := decls {
+  reflect_type_info! T derive_lens_meta
+}
+
+---
+
+(module
+  (defmacro
+    (identifier)
+    (identifier)
+    (decls_block
+      (macro_call_decl
+        (macro_call_decl
+          (macro_call_decl
+            (identifier))
+          (identifier))
+        (identifier)))))
+
+===
+Visibility and native attribute
+===
+
+#[native println]
+pub def IO.println (s : String) : IO Unit
+
+---
+
+(module
+  (def
+    (attributes
+      (attribute
+        (identifier)
+        (attr_arg
+          (identifier))))
+    (visibility)
+    (module_path
+      (identifier)
+      (identifier))
+    (param_group
+      (identifier)
+      (identifier))
+    (apply
+      (identifier)
+      (identifier))))

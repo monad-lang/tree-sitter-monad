@@ -1,0 +1,116 @@
+===
+Simple attribute
+===
+
+#[test]
+def test_function : Bool := true
+
+---
+
+(module
+  (def
+    (attributes
+      (attribute
+        name: (identifier)))
+    name: (identifier)
+    return_type: (identifier)
+    body: (identifier)))
+
+===
+Attribute with string argument
+===
+
+#[native "add"]
+def native_add (a b : I64) : I64
+
+---
+
+(module
+  (def
+    (attributes
+      (attribute
+        name: (identifier)
+        argument: (attr_arg
+          (string))))
+    name: (identifier)
+    parameters: (param_group
+      name: (identifier)
+      name: (identifier)
+      type: (identifier))
+    return_type: (identifier)))
+
+===
+Multiple stacked attributes
+===
+
+#[test]
+#[partial]
+def test_partial : Bool := true
+
+---
+
+(module
+  (def
+    (attributes
+      (attribute
+        name: (identifier))
+      (attribute
+        name: (identifier)))
+    name: (identifier)
+    return_type: (identifier)
+    body: (identifier)))
+
+===
+Attribute with named arguments
+===
+
+#[deprecated {since := "1.0", reason := "use new_function"}]
+def old_function : String := "old"
+
+---
+
+(module
+  (def
+    (attributes
+      (attribute
+        name: (identifier)
+        argument: (attr_arg
+          (attr_named_block
+            name: (identifier)
+            value: (attr_arg
+              (string))
+            name: (identifier)
+            value: (attr_arg
+              (string))))))
+    name: (identifier)
+    return_type: (identifier)
+    body: (string)))
+
+===
+Attribute with nested structures
+===
+
+#[custom {config := {enabled := true, level := 5}}]
+def custom_function : String := "custom"
+
+---
+
+(module
+  (def
+    (attributes
+      (attribute
+        name: (identifier)
+        argument: (attr_arg
+          (attr_named_block
+            name: (identifier)
+            value: (attr_arg
+              (attr_named_block
+                name: (identifier)
+                value: (attr_arg
+                  (identifier))
+                name: (identifier)
+                value: (attr_arg
+                  (number))))))))
+    name: (identifier)
+    return_type: (identifier)
+    body: (string)))

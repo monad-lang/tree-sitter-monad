@@ -1,34 +1,34 @@
 ;
 ; Function definitions
 ;
-(def) @definition
+(def name: (_) @name) @definition.function
 
 ;
 ; Type definitions
 ;
-(type_decl) @definition
+(type_decl name: (_) @name) @definition.type
+(struct name: (_) @name) @definition.struct
+(class name: (_) @name) @definition.interface
+(instance) @definition.interface
 
 ;
-; Struct definitions
+; Infix operator definitions
 ;
-(struct) @definition
+(infix definition: (_) @name) @definition.function
 
 ;
-; Class definitions
+; Macro definitions
 ;
-(class) @definition
-
-;
-; Instance definitions
-;
-(instance) @definition
-
-;
-; Infix definitions
-;
-(infix) @definition
+(defmacro name: (_) @name) @definition.macro
 
 ;
 ; Module imports
 ;
-(use) @definition
+(use module: (_) @name) @definition.import
+(open module: (_) @name) @definition.import
+
+;
+; References
+;
+(apply name: (identifier) @name) @reference.call
+(constructor_name (identifier) @name) @reference.class

@@ -1,5 +1,5 @@
 ;
-; Code blocks
+; Generic brace-delimited bodies
 ;
 "{" @fold.start
 "}" @fold.end
@@ -8,37 +8,20 @@
 ; Do blocks
 ;
 (do) @fold.start
-"}" @fold.end
 
 ;
 ; Match bodies
 ;
-(match) @fold.start
-"}" @fold.end
+(match_term) @fold.start
 
 ;
-; Type bodies
+; Type/struct/class/instance/decls bodies
 ;
 (type_decl) @fold.start
-"}" @fold.end
-
-;
-; Struct bodies  
-;
 (struct) @fold.start
-"}" @fold.end
-
-;
-; Class bodies
-;
 (class) @fold.start
-"}" @fold.end
-
-;
-; Instance bodies
-;
 (instance) @fold.start
-"}" @fold.end
+(decls_block) @fold.start
 
 ;
 ; Multi-line comments

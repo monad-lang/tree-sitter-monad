@@ -114,7 +114,7 @@ The grammar is organized into modular files under `grammar/`:
 
 | File | Purpose |
 |------|---------|
-| `attr.js` | Attribute syntax (`@[...]`) |
+| `attr.js` | Attribute syntax (`#[...]`) |
 | `basic.js` | Basic tokens and precedence constants |
 | `command.js` | Top-level declarations (`def`, `type`, `struct`, `class`, etc.) |
 | `do.js` | Do notation and monadic constructs |
@@ -207,13 +207,13 @@ def maybe_use (?x : Resource) : Unit := if available then use x else noop
 ### Attributes
 
 ```monad
-@[test]
-def test_function := True
+#[test]
+def test_function : Bool := true
 
-@[native "add"]
+#[native "add"]
 def native_add (a b : I64) : I64
 
-@[deprecated {since := "1.0", reason := "use new_function"}]
+#[deprecated {since := "1.0", reason := "use new_function"}]
 def old_function := "old"
 ```
 

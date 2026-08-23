@@ -1,0 +1,154 @@
+===
+Integer literal
+===
+
+def f := 42
+
+---
+
+(module
+  (def
+    (identifier)
+    (number)))
+
+===
+Float literal
+===
+
+def f := 3.14
+
+---
+
+(module
+  (def
+    (identifier)
+    (float)))
+
+===
+String literal
+===
+
+def f := "hello world"
+
+---
+
+(module
+  (def
+    (identifier)
+    (string)))
+
+===
+Character literal
+===
+
+def f := 'c'
+
+---
+
+(module
+  (def
+    (identifier)
+    (char)))
+
+===
+Boolean-like identifiers
+===
+
+def f := true
+def g := false
+
+---
+
+(module
+  (def
+    (identifier)
+    (identifier))
+  (def
+    (identifier)
+    (identifier)))
+
+===
+Hole
+===
+
+def f := _
+
+---
+
+(module
+  (def
+    (identifier)
+    (hole)))
+
+===
+Typed integer and float literals
+===
+
+def a := 42i64
+def b := 255u8
+def c := 3.14f32
+
+---
+
+(module
+  (def
+    (identifier)
+    (number))
+  (def
+    (identifier)
+    (number))
+  (def
+    (identifier)
+    (float)))
+
+===
+Hex literals
+===
+
+def a := 0xFF
+def b := 0xFFu32
+def c := -0x10
+
+---
+
+(module
+  (def
+    (identifier)
+    (hex_number))
+  (def
+    (identifier)
+    (hex_number))
+  (def
+    (identifier)
+    (hex_number)))
+
+===
+Sort level
+===
+
+def T : Sort 1 := unit
+
+---
+
+(module
+  (def
+    (identifier)
+    (sort
+      (number))
+    (identifier)))
+
+===
+List literal
+===
+
+def xs := [1, 2, 3]
+
+---
+
+(module
+  (def
+    (identifier)
+    (list
+      (number)
+      (number)
+      (number))))
