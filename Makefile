@@ -4,7 +4,7 @@ endif
 
 LANGUAGE_NAME := tree-sitter-monad
 HOMEPAGE_URL := https://tangled.org/monad-lang.org/tree-sitter-monad
-VERSION := 0.1.0
+VERSION := 0.1.1
 
 # repository
 SRC_DIR := src

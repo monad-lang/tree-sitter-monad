@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13)
 
 project(tree-sitter-monad
-        VERSION "0.1.0"
+        VERSION "0.1.1"
         DESCRIPTION "Parser for the Monad language"
         HOMEPAGE_URL "https://tangled.org/monad-lang.org/tree-sitter-monad"
         LANGUAGES C)
