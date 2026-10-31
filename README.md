@@ -109,6 +109,15 @@ pnpm exec tree-sitter test
 pnpm start
 ```
 
+### Releasing
+
+CI (`.github/workflows/`) tests every pull request and every push to
+`main`. A push to `main` also publishes the version recorded in
+`package.json`/`Cargo.toml` to npm and crates.io and creates a GitHub
+release — but only once per version. To cut a release: bump the version
+in **both** `package.json` and `Cargo.toml` (they must match), then push
+to `main`. Requires the `NPM_TOKEN` and `CARGO_REGISTRY_TOKEN` secrets.
+
 ## Grammar Structure
 
 The grammar is organized into modular files under `grammar/`:

@@ -1,8 +1,9 @@
 name: Test
 
+# Pull requests run the tests directly; pushes to main are tested by the
+# Release workflow (release.yml) reusing this workflow, so a push to
+# main doesn't run the suite twice.
 on:
-  push:
-    branches: [main]
   pull_request:
     branches: [main]
   workflow_call:

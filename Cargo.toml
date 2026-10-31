@@ -1,7 +1,7 @@
 [package]
 name = "tree-sitter-monad"
 description = "Parser for the Monad language"
-version = "0.1.1"
+version = "0.2.0"
 authors = ["Anders Christiansen Sørby <anders@sorby.xyz>"]
 license = "Apache-2.0"
 readme = "README.md"

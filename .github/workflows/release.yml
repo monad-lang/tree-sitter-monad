@@ -1,0 +1,122 @@
+name: Release
+
+# Every push to main is tested and then releases the version recorded in
+# package.json/Cargo.toml — but only once: the release jobs are skipped
+# when a tag with that version already exists. So cutting a release is:
+# bump the version in package.json AND Cargo.toml, push to main.
+#
+# Ordering makes partial failures recoverable: npm/crates publishes
+# happen BEFORE the tag is created, and each publish is skipped if that
+# version is already on its registry, so re-running the workflow after a
+# partial failure converges on a complete release without errors.
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+
+  resolve:
+    needs: test
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.resolve.outputs.version }}
+      release: ${{ steps.resolve.outputs.release }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # Full history including tags, so the tag-existence check
+          # below sees every previously released version.
+          fetch-depth: 0
+
+      - name: Resolve version and release state
+        id: resolve
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          cargo_version="$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)"
+          if [ "$version" != "$cargo_version" ]; then
+            echo "::error::package.json ($version) and Cargo.toml ($cargo_version) versions differ"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          if git rev-parse -q --verify "refs/tags/$version" >/dev/null 2>&1; then
+            echo "Tag $version already exists — nothing to release"
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Releasing $version"
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  publish-npm:
+    needs: resolve
+    if: needs.resolve.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: cachix/install-nix-action@v31
+
+      - uses: cachix/cachix-action@v16
+        with:
+          name: devenv
+
+      - name: Install devenv.sh
+        run: nix profile add nixpkgs#devenv
+
+      - name: Generate parser
+        run: devenv shell tree-sitter generate
+
+      - name: Publish to npm
+        env:
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          VERSION: ${{ needs.resolve.outputs.version }}
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+          if npm view "tree-sitter-monad@${VERSION}" version >/dev/null 2>&1; then
+            echo "${VERSION} is already on npm — skipping publish"
+          else
+            devenv shell pnpm publish --no-git-checks --access public
+          fi
+
+  publish-crate:
+    needs: resolve
+    if: needs.resolve.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: cachix/install-nix-action@v31
+
+      - uses: cachix/cachix-action@v16
+        with:
+          name: devenv
+
+      - name: Install devenv.sh
+        run: nix profile add nixpkgs#devenv
+
+      - name: Publish to crates.io
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+          VERSION: ${{ needs.resolve.outputs.version }}
+        run: |
+          if curl -sf "https://crates.io/api/v1/crates/tree-sitter-monad/${VERSION}" >/dev/null; then
+            echo "${VERSION} is already on crates.io — skipping publish"
+          else
+            devenv shell cargo publish --token "${CARGO_REGISTRY_TOKEN}"
+          fi
+
+  release:
+    needs: [resolve, publish-npm, publish-crate]
+    if: needs.resolve.outputs.release == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Create GitHub release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          VERSION: ${{ needs.resolve.outputs.version }}
+        run: gh release create "$VERSION" --generate-notes

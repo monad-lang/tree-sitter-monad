@@ -1,6 +1,6 @@
 {
   "name": "tree-sitter-monad",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Parser for the Monad language",
   "repository": "https://tangled.org/monad-lang.org/tree-sitter-monad",
   "license": "Apache-2.0",
