@@ -2944,16 +2944,6 @@
             "named": false
           }
         ]
-      },
-      "precedence": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "number",
-            "named": true
-          }
-        ]
       }
     },
     "children": {

@@ -217,11 +217,9 @@ infix (>>=) := Monad.bind
 infix (<|) := fun_apply
 infix (|>) := apply_fun
 infix (++) := append
-
-infix :12 (++) := Append.append
 ```
 
-Binary operator precedence mirrors the self-hosted parser's operator table: `|>` `<|` `>>=` `.` `<*>` `<|>` `||` `&&` comparisons (`==` `!=` `<` `>` `<=` `>=`) `++`/`@` shifts `+`/`-` `*`/`/`, with application binding tightest and `->` loosest. Only these operators may be declared; anything else is an "unknown operator". The optional `:N` clause is accepted and discarded.
+Binary operator precedence mirrors the self-hosted parser's operator table: `|>` `<|` `>>=` `.` `<*>` `<|>` `||` `&&` comparisons (`==` `!=` `<` `>` `<=` `>=`) `++`/`@` shifts `+`/`-` `*`/`/`, with application binding tightest and `->` loosest. Only these operators may be declared; anything else is an "unknown operator".
 
 ### Do Notation and Monadic Returns
 

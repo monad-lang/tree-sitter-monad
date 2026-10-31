@@ -102,17 +102,10 @@ Infix operator
 
 infix (+) := I64.add
 
-infix :12 (++) := Append.append
-
 ---
 
 (module
   (infix
-    (module_path
-      (identifier)
-      (identifier)))
-  (infix
-    (number)
     (module_path
       (identifier)
       (identifier))))

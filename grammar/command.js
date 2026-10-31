@@ -155,17 +155,14 @@ module.exports = {
     '>>=', '<*>', '<|>', '==', '!=', '>=', '<=', '>>', '<<', '|>', '<|',
     '++', '&&', '||', '>', '<', '*', '/', '+', '-', '.', '@',
   ),
-  // `infix [:N] (op) := Dotted.Name` — the optional `:N` precedence
-  // clause is parsed and discarded by the reference (lang/src/parser.mo
-  // infix_precedence_clause), so the tree only needs to accept it.
+  // `infix (op) := Dotted.Name` — the self-hosted parser still tolerates
+  // an optional `:N` precedence clause but parses and discards it (dead
+  // code; undocumented, rejected by the Rust bootstrap parser). Only the
+  // documented shape is accepted here.
   infix: $ => seq(
     optional($.visibility),
-    'infix',
-    optional(seq(':', field('precedence', $.number))),
-    '(',
-    field('operator', $._infix_symbol),
-    ')',
-    ':=', field('definition', $._decl_name),
+    'infix', '(', field('operator', $._infix_symbol),
+    ')', ':=', field('definition', $._decl_name),
   ),
 
   decls_block: $ => seq('decls', '{', repeat($._decl), '}'),
