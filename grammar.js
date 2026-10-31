@@ -12,28 +12,11 @@ const basic = require('./grammar/basic.js')
 const command = require('./grammar/command.js')
 const do_ = require('./grammar/do.js')
 const term = require('./grammar/term.js')
-const {sep1} = require('./grammar/util.js')
 
-// Precedence numbers mirror core/src/parser.rs operator_precedence exactly
-// (higher number binds tighter). `apply` (juxtaposition application) binds
-// tighter than every binary operator.
-const PREC = {
-  arrow: 3,
-  pipe: 5,
-  bind: 10,
-  dot: 12,
-  applicative: 15,
-  alt: 20,
-  or: 25,
-  and: 30,
-  compare: 40,
-  append: 50,
-  shift: 60,
-  add: 65,
-  mul: 70,
-  backtick: 80,
-  apply: 90,
-}
+// Operator precedence levels live in grammar/basic.js (single source,
+// shared with the term rules). See the comment there for why `apply`
+// is 0 and every binary operator is negative.
+const {PREC} = basic
 
 module.exports = grammar({
   name: "monad",
@@ -48,26 +31,65 @@ module.exports = grammar({
   word: $ => $._identifier,
 
   conflicts: $ => [
-    [$.implicit_param, $._term],
+    // `def f { x : A }` — the brace is simultaneously readable as an
+    // implicit parameter group and as a brace param block field.
     [$.struct_field, $.implicit_param],
-    [$._cons_param, $._term],
+    // A `let x := v` inside a do block is either a `do_let` statement (no
+    // `in`) or the prefix of a term-level `let ... in` used as an
+    // expression statement — the two only diverge at the `in`, so GLR
+    // carries both until then (rust/core/src/parser.rs do_statement's
+    // Let arm vs term_inner's let_parser).
+    [$.let_binding, $.do_let],
+    // `match x { ... }` — the `{` either opens the match's own case list or
+    // a struct literal bound as an unparenthesized application argument
+    // to the scrutinee's head (`match x { f := v }` is valid monad). The
+    // reference parser resolves this by backtracking on content; GLR
+    // carries both versions and the struct-literal one dies on
+    // non-`field := value` content.
+    [$.apply, $._term],
+    // `struct Name (a b : Type)`, `def m (a b : A)`, `{K V : Type}` —
+    // the second juxtaposed identifier in a cons parameter group
+    // continues the name list or feeds an application; the `:` (or its
+    // absence) decides on content, like the reference parser's ordered
+    // backtrack. (The param_group/implicit_param junctions resolve
+    // statically and need no declared conflict.)
+    [$.apply, $._cons_param],
+    // `def f { x y ... }` — inside a def's brace parameter group the
+    // identifier sequence is simultaneously readable as the param name
+    // list, a forall-style implicit_param term, or an application in
+    // progress (the brace itself forking between param group and term).
+    [$.apply, $.implicit_param, $._term],
+    // Same junction one level up, when the scrutinee is itself an
+    // application (`match f x { ... }`): the completed `apply` reduces
+    // to `_expression` (match brace) or extends with a struct-literal
+    // argument. Same content-based fork.
+    [$.apply, $._expression],
   ],
 
   rules: {
     // Declarations of every kind interleave freely in file order
-    // (core/src/parser.rs decls_parser: many0(decl_parser)).
+    // (rust/core/src/parser.rs decls_parser: many0(decl_parser)).
     module: $ => repeat($._decl),
 
-    _expression: $ => choice(
+    // prec(PREC.apply) — the wrapper's precedence must sit at apply's own
+    // level (0) so the [apply, _expression] boundary forks (e.g. `match f
+    // x { ... }` — reduce the completed application to the scrutinee
+    // slot or extend it with a struct-literal argument) are reported as
+    // real conflicts and GLR'd on content, exactly like the reference
+    // parser's ordered backtracking. The remaining let/lambda/return/if
+    // "open body" rules use prec -100 so their closing reduce loses every
+    // shift/reduce tie against binary operators (greedy bodies:
+    // `let x := 5 in x + 1` binds `x + 1`, not `(let ... in x) + 1`).
+    _expression: $ => prec(PREC.apply, choice(
       $.apply,
       $.binary_expression,
       $.arrow,
-      $.backtick_call,
       $._term,
-    ),
+      $.return_term,
+    )),
 
     // `let x := v; let y := w; in body` — always `in`-terminated
-    // (core/src/parser.rs let_parser).
+    // (rust/core/src/parser.rs let_parser).
     let_binding: $ => seq(
       field('name', $.identifier),
       optional($.type_ascription),
@@ -75,29 +97,29 @@ module.exports = grammar({
       field('value', $._expression),
       optional(';'),
     ),
-    // Each binding owns its own optional trailing `;` (core/src/parser.rs
-    // let_parser: `many1` of bindings, each individually `;`-terminated) —
-    // do not also separate with sep1, which would double-represent the
-    // same semicolon and create an unresolvable shift/reduce ambiguity.
-    let: $ => prec.right(seq(
+    // Each binding owns its own optional trailing `;` (let_parser:
+    // `many1` of bindings, each individually `;`-terminated) — do not also
+    // separate with sep1, which would double-represent the same semicolon
+    // and create an unresolvable shift/reduce ambiguity.
+    let: $ => prec.right(-100, seq(
       'let',
       field('bindings', repeat1($.let_binding)),
       'in',
       field('body', $._expression),
     )),
 
-    if_then_else: $ => seq(
+    if_then_else: $ => prec(-100, seq(
       'if',
       field('condition', $._expression),
       'then',
       field('consequence', $._expression),
       'else',
       field('alternative', $._expression),
-    ),
+    )),
 
     // Left-recursive binary application (curried, matching real
-    // core/src/term.rs App/apps — n-ary application really is nested
-    // binary App nodes), NOT a flat `repeat1`. A flat
+    // term.rs App/apps — n-ary application really is nested binary App
+    // nodes), NOT a flat `repeat1`. A flat
     // `field('arguments', repeat1($._argument))` looks equivalent but, in
     // any context where an outer construct also has a bare-identifier-
     // starting repeat in its FOLLOW set (a `let` binding list, the
@@ -107,19 +129,29 @@ module.exports = grammar({
     // on the flat form. The left-recursive form doesn't have this failure
     // mode.
     apply: $ => prec.left(PREC.apply, seq(
-      field('name', choice($.apply, $._term)),
+      field('name', choice(
+        $.apply,
+        $.module_path,
+        $.identifier,
+        $.macro_call,
+        $.parenthesized,
+      )),
+      optional(field('hint', $.dict_hint)),
       field('argument', $._apply_argument),
     )),
-    // Same as `_term` but without any `{`-led atom
-    // (`implicit_param`/`struct_literal`/`struct_update`). Allowing those
-    // as a bare, unparenthesized application argument makes the parser try
-    // to extend a return-type/argument chain into any `{` that follows —
-    // which collides badly with `def`'s own `{ ... }` do-block-body
-    // alternative (`def f (...) : T { stmts }`) and, empirically, wins the
-    // GLR tie against the do-block-body far more often across real files
-    // than the (rare) case of an unparenthesized struct literal as a call
-    // argument actually needs it. A struct literal is still reachable as
-    // an argument when parenthesized: `f x (Shape.rect { h := 3 })`.
+    // `f #Named.Instance args` — an explicit instance/dictionary hint
+    // between the head and the arguments
+    // (rust/core/src/parser.rs application). A bare name or a dotted
+    // path, not an unparenthesized argument itself.
+    dict_hint: $ => seq('#', field('class', choice($.module_path, $.identifier))),
+    // `f x (Shape.rect { h := 3 })` and, as in the real application rule
+    // (args go through `term_inner`, whose `literal` covers
+    // struct_or_update_parser), ALSO unparenthesized: `Shape.rectangle
+    // { height := 3 }` is ordinary, pervasive monad. The `def f : T
+    // { do-stmts }` body-brace collides with this shape only where the
+    // content can't tell them apart — a do statement is never a
+    // `field := value` pair, so the GLR fork resolves on content exactly
+    // like the reference parser's nom backtracking does.
     _apply_argument: $ => choice(
       $.module_path,
       $.identifier,
@@ -127,6 +159,7 @@ module.exports = grammar({
       $.hex_number,
       $.float,
       $.string,
+      $.raw_string,
       $.char,
       $.hole,
       $.sort,
@@ -139,6 +172,8 @@ module.exports = grammar({
       $.let,
       $.do,
       $.if_then_else,
+      $.struct_literal,
+      $.struct_update,
     ),
 
     binary_expression: $ => choice(
@@ -152,7 +187,6 @@ module.exports = grammar({
       prec.right(PREC.and, seq($._expression, '&&', $._expression)),
       prec.left(PREC.compare, seq($._expression, '==', $._expression)),
       prec.left(PREC.compare, seq($._expression, '!=', $._expression)),
-      prec.left(PREC.compare, seq($._expression, '=', $._expression)),
       prec.left(PREC.compare, seq($._expression, '<', $._expression)),
       prec.left(PREC.compare, seq($._expression, '>', $._expression)),
       prec.left(PREC.compare, seq($._expression, '<=', $._expression)),
@@ -177,9 +211,10 @@ module.exports = grammar({
     )),
     doc_comment: $ => token(seq('///', /[^\n]*/)),
 
-    // core/src/parser.rs identifier(): ASCII alpha/underscore start,
-    // alphanumeric/underscore continuation.
-    _identifier: $ => /[a-zA-Z_][a-zA-Z0-9_]*/,
+    // rust/core/src/parser.rs identifier(): letter/underscore start,
+    // alphanumeric/underscore continuation (`char::is_alphanumeric`, so
+    // Unicode letters are identifiers too).
+    _identifier: $ => /[\p{L}_][\p{L}\p{N}_]*/,
 
     ...attr,
     ...command,

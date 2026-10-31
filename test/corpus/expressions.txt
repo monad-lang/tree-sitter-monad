@@ -17,10 +17,10 @@ def f := \x => x + 1
         (number)))))
 
 ===
-Lambda with parenthesized parameter group
+Lambda with typed parameters
 ===
 
-def add := fn (a b : I64) => a + b
+def add := fn (a : I64) (b : I64) => a + b
 
 ---
 
@@ -30,6 +30,9 @@ def add := fn (a b : I64) => a + b
     (lambda
       (lambda_param
         (identifier)
+        (type_ascription
+          (identifier)))
+      (lambda_param
         (identifier)
         (type_ascription
           (identifier)))
@@ -178,7 +181,7 @@ def f : IO Unit := do {
         (apply
           (identifier)
           (identifier)))
-      (do_return
+      (return_term
         (identifier)))))
 
 ===
@@ -206,19 +209,46 @@ def p3 := { p2 with x := 3 }
       (number))))
 
 ===
-Backtick infix call
+Return shorthand outside do
 ===
 
-def f := x `combine` y
+def f (x : I64) : I64 := return x + 1
 
 ---
 
 (module
   (def
     (identifier)
-    (backtick_call
+    (param_group
       (identifier)
+      (identifier))
+    (identifier)
+    (return_term
+      (binary_expression
+        (identifier)
+        (number)))))
+
+===
+Application with explicit instance hint
+===
+
+def pick (x : I64) : String := Show.show #ShowB x
+
+---
+
+(module
+  (def
+    (identifier)
+    (param_group
       (identifier)
+      (identifier))
+    (identifier)
+    (apply
+      (module_path
+        (identifier)
+        (identifier))
+      (dict_hint
+        (identifier))
       (identifier))))
 
 ===

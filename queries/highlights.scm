@@ -42,7 +42,7 @@
 ; Punctuation
 ;
 ["(" ")" "[" "]" "{" "}"] @punctuation.bracket
-["," ";" ":" "." ".." "`"] @punctuation.delimiter
+["," ";" ":" "." ".." "::"] @punctuation.delimiter
 ["=>" "->" ":=" "<-"] @operator
 
 ;
@@ -50,14 +50,14 @@
 ;
 [
   ">>=" "<*>" "<|>" "==" "!=" ">=" "<=" ">>" "<<" "|>" "<|"
-  "++" "&&" "||" ">" "<" "=" "*" "/" "+" "-" "@"
+  "++" "&&" "||" ">" "<" "*" "/" "+" "-" "@"
 ] @operator
-(backtick_call operator: (identifier) @operator)
 
 ;
 ; Literals
 ;
 (string) @string
+(raw_string) @string
 (char) @character
 (quoted_char) @string.escape
 (number) @number
@@ -83,15 +83,16 @@
 "Sort" @type.builtin
 
 ;
-; Qualified names / module paths (`IO.println`, `List.append`)
+; Qualified names / module paths (`IO.println`, `std::list::List.cons`)
 ;
 (module_path (identifier) @module)
 
 ;
-; Attributes
+; Attributes — `#[...]` and the file-level `#![...]`
 ;
-["#[" "]"] @punctuation.bracket
+["#[" "#![" "]"] @punctuation.bracket
 (attribute name: (identifier) @attribute)
+(mote_attr name: (identifier) @attribute)
 (attr_named_block name: (identifier) @property)
 
 ;
@@ -120,10 +121,19 @@
 (match_case constructor: (hole) @constructor)
 
 (struct_field name: (identifier) @property)
+(use_path (identifier) @module)
 (use_item name: (identifier) @module)
+(use_item name: (use_item_name (identifier) @module))
 (use_item alias: (identifier) @module)
+(open_filter (identifier) @module)
 (use module: (_) @module)
 (open module: (_) @module)
+(with_decl prefix: (_) @module)
+
+;
+; Explicit instance hint (`show #ShowB x`)
+;
+(dict_hint class: (_) @type)
 
 ;
 ; Parameters / binders

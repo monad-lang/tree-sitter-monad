@@ -15,7 +15,7 @@ def f : IO I64 := do {
       (identifier)
       (identifier))
     (do
-      (do_return
+      (return_term
         (number)))))
 
 ===

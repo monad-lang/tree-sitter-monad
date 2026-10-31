@@ -1,9 +1,10 @@
-const {sep1, sep1_} = require('./util.js')
+const {sep0, sep1, sep1_, sep2} = require('./util.js')
 
-// Top-level declaration grammar, matching core/src/parser.rs def_parser /
-// class_def_parser / class_parser / instance_parser / constructor_parser /
-// inductive_parser / struct_parser / infix_parser / decl_gen_parser /
-// defmacro_parser / use_parser / open_parser.
+// Top-level declaration grammar, matching rust/core/src/parser.rs
+// def_parser / class_def_parser / class_parser / instance_parser /
+// constructor_parser / inductive_parser / struct_parser / infix_parser /
+// decl_gen_parser / defmacro_parser / use_parser / open_parser /
+// with_decl_parser / mote_attr_parser.
 module.exports = {
   _decl_name: $ => choice($.module_path, $.identifier),
 
@@ -15,23 +16,27 @@ module.exports = {
   type_constraint: $ => $._expression,
   type_constraints: $ => seq('[', sep1($.type_constraint, ','), ']'),
 
-  // A type-level parameter on `class`/`type`/`struct`: a bare identifier or
-  // a parenthesized, optionally-typed binder group, e.g. `(F : Type -> Type)`.
+  // A generic parameter on `class`/`type`: a bare identifier or a
+  // parenthesized binder — `(mult? name : Type? := default?)`
+  // (rust/core/src/parser.rs lam_param, the single-name shape; NOT the
+  // multi-name `def_param` group).
   _type_param: $ => choice(
     $.identifier,
     seq(
-      '(', optional($.multiplicity), repeat1($.identifier),
+      '(',
+      optional($.multiplicity),
+      field('name', $.identifier),
       optional(seq(':', field('type', $._expression))),
       optional(seq(':=', field('default', $._expression))),
       ')',
     ),
   ),
 
-  // `(mult name+ : Type)` — bare-type-only unnamed field, or a named
-  // typed field (core/src/parser.rs cons_param).
+  // `(mult? name+ : Type)` — a bare-type-only unnamed field, or a named
+  // typed field (rust/core/src/parser.rs cons_param).
   _cons_param: $ => choice(
     $.identifier,
-    seq('(', optional($.attributes), repeat1($.identifier), ':', field('type', $._expression), ')'),
+    seq('(', optional($.attributes), $._param_names, ':', field('type', $._expression), ')'),
     seq('(', optional($.attributes), field('type', $._expression), ')'),
   ),
 
@@ -45,16 +50,19 @@ module.exports = {
     optional(seq(':=', field('default', $._expression))),
   ),
 
-  // `(mult name+ : Type (:= default)?)` — an explicit def/class parameter
-  // group.
-  param_group: $ => seq(
-    '(',
-    optional($.multiplicity),
-    field('name', repeat1($.identifier)),
-    ':',
-    field('type', $._expression),
-    optional(seq(':=', field('default', $._expression))),
-    ')',
+  // `(mult name+ : Type)` — an explicit def/class parameter group
+  // (rust/core/src/parser.rs def_param; no `:=` defaults in this form),
+  // or a destructured group `({ x, y } : Type)`.
+  param_group: $ => choice(
+    seq(
+      '(',
+      optional($.multiplicity),
+      field('name', $._param_names),
+      ':',
+      field('type', $._expression),
+      ')',
+    ),
+    seq('(', field('pattern', $.field_pattern), ':', field('type', $._expression), ')'),
   ),
   // Non-empty on purpose — an empty `{}` after a def's parameter position
   // is the (possibly-empty) do-block body form, not a param block.
@@ -76,10 +84,12 @@ module.exports = {
   ),
 
   class: $ => seq(
+    optional($.attributes),
+    optional($.visibility),
     'class',
     optional($.type_constraints),
     field('name', $._decl_name),
-    repeat($._type_param),
+    repeat1($._type_param),
     '{', field('body', repeat($.class_method)), '}',
   ),
   class_method: $ => seq(
@@ -101,7 +111,10 @@ module.exports = {
     optional($.type_constraints),
     optional(seq(field('name', $._decl_name), ':')),
     field('class', $._decl_name),
-    repeat($._term),
+    // Application-free atoms only (rust/core/src/parser.rs instance_parser
+    // takes term_inner args) — no `{`-led forms, so an instance body brace
+    // can never be mistaken for an argument.
+    repeat($._apply_argument),
     '{', field('body', repeat1($.def)), '}',
   ),
 
@@ -135,13 +148,23 @@ module.exports = {
     '{', field('fields', optional(sep1_($.struct_field, ','))), '}',
   ),
 
+  // The operator set is exactly the self-hosted op_table
+  // (lang/src/parser/op_table.mo): an infix declaration naming anything
+  // else is an "unknown operator" parse error there.
   _infix_symbol: $ => choice(
     '>>=', '<*>', '<|>', '==', '!=', '>=', '<=', '>>', '<<', '|>', '<|',
-    '++', '&&', '||', '>', '<', '=', '*', '/', '+', '-', '.', '@',
+    '++', '&&', '||', '>', '<', '*', '/', '+', '-', '.', '@',
   ),
+  // `infix [:N] (op) := Dotted.Name` — the optional `:N` precedence
+  // clause is parsed and discarded by the reference (lang/src/parser.mo
+  // infix_precedence_clause), so the tree only needs to accept it.
   infix: $ => seq(
     optional($.visibility),
-    'infix', '(', field('operator', $._infix_symbol), ')',
+    'infix',
+    optional(seq(':', field('precedence', $.number))),
+    '(',
+    field('operator', $._infix_symbol),
+    ')',
     ':=', field('definition', $._decl_name),
   ),
 
@@ -151,6 +174,7 @@ module.exports = {
     seq('(', optional($.multiplicity), repeat1($.identifier), ':', field('type', $._expression), ')'),
   ),
   defmacro: $ => seq(
+    optional($.attributes),
     optional($.visibility),
     'defmacro',
     field('name', $._decl_name),
@@ -171,30 +195,64 @@ module.exports = {
     )),
   ),
 
+  // `use` module paths are `::`-separated ONLY — the dotted spelling is a
+  // parse error in the reference parser (use_path_expression).
+  use_path: $ => seq(
+    field('segment', $.identifier),
+    repeat(seq('::', field('segment', $.identifier))),
+  ),
+  // A `.`-immediate dotted spelling inside a `use` filter (`List.length`) —
+  // an item names a declaration by its spelled name, not a module
+  // (rust/core/src/parser.rs use_item_name).
+  use_item_name: $ => sep2($.identifier, token.immediate('.')),
+  // One `use Module { ... }` item: `*`, a (dotted) name, `name as alias`,
+  // or a sub-module import `name { items }` / `name as alias { items }`.
   use_item: $ => choice(
     '*',
-    seq(field('name', $.identifier), 'as', field('alias', $.identifier), field('items', $.use_filter)),
-    seq(field('name', $.identifier), field('items', $.use_filter)),
-    seq(field('name', $.identifier), 'as', field('alias', $.identifier)),
-    field('name', $.identifier),
+    seq(
+      field('name', $.identifier),
+      optional(seq('as', field('alias', $.identifier))),
+      field('items', $.use_filter),
+    ),
+    seq(
+      field('name', choice($.use_item_name, $.identifier)),
+      optional(seq('as', field('alias', $.identifier))),
+    ),
   ),
-  use_filter: $ => seq('{', optional(sep1_($.use_item, ',')), '}'),
+  // Items are whitespace- or comma-separated, each with an optional
+  // trailing comma (rust/core/src/parser.rs use_brace_items).
+  use_filter: $ => seq('{', repeat(seq($.use_item, optional(','))), '}'),
 
   use: $ => seq(
     optional($.attributes),
-    optional($.visibility),
+    optional('pub'),
     'use',
-    field('module', $._decl_name),
+    field('module', $.use_path),
     optional(field('filter', $.use_filter)),
   ),
-  // No `visibility` on `open` (core/src/parser.rs open_parser has no
-  // vis_parser call).
+  // `open` operates on a dotted name path (`open IO {println}`), never on
+  // `::` modules; its filter is `{*}` or a plain name list — no `as`, no
+  // nesting (rust/core/src/parser.rs open_module_path_and_filter). A
+  // scoped `open M in <decl>` may wrap a def/class/instance/struct/type.
+  open_filter: $ => seq(
+    '{',
+    choice('*', repeat(seq(field('name', $.identifier), optional(',')))),
+    '}',
+  ),
   open: $ => seq(
     optional($.attributes),
     'open',
     field('module', $._decl_name),
-    optional(field('filter', $.use_filter)),
+    optional(field('filter', $.open_filter)),
     optional(seq('in', field('body', $._decl))),
+  ),
+
+  // `with Dotted.Name { decls }` — prefix every declaration inside with
+  // `Dotted.Name.` (rust/core/src/parser.rs with_decl_parser).
+  with_decl: $ => seq(
+    'with',
+    field('prefix', $._decl_name),
+    '{', repeat($._decl), '}',
   ),
 
   _decl: $ => choice(
@@ -205,9 +263,10 @@ module.exports = {
     $.struct,
     $.infix,
     $.defmacro,
-    $.decls_block,
     $.macro_call_decl,
     $.use,
     $.open,
+    $.with_decl,
+    $.mote_attr,
   ),
 }

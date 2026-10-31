@@ -8,11 +8,12 @@ Monad is a functional programming language with support for dependent types, typ
 
 ## Features
 
-- **Declarations**: `def`, `type`, `class`, `instance`, `struct`, `infix`
-- **Type system**: Dependent types, implicit/explicit binders, type constraints
-- **Expressions**: Function application, lambda abstractions, `if/then/else`, `match`, binary operators
-- **Do notation**: Monadic sequencing with `do` blocks
-- **Comments**: Line (`//`) and block (`/* */`) comments
+- **Declarations**: `def`, `type`, `class`, `instance`, `struct`, `infix`, `defmacro`, `use`, `open`, `with`
+- **Type system**: Dependent types, implicit `{A : Type}` binders, `[Constraint A]` constraints, `Sort` levels
+- **Expressions**: Curried application, lambda (`fn`/`\`), `let ... in`, `if/then/else`, `match`, operator sections via binary operators, `do` notation
+- **Modules**: `::`-qualified names (`std::list::List.cons`), `use`/`open` with brace filters
+- **Literals**: Suffixed numbers, strings with escapes, raw strings, chars, lists, tuples, struct literals and updates
+- **Comments**: Line (`//`), block (`/* */`), doc (`///`)
 
 ## Installation
 
@@ -123,6 +124,8 @@ The grammar is organized into modular files under `grammar/`:
 
 ## Supported Syntax
 
+Every example below is verified against the grammar (see `test/corpus/`).
+
 ### Types
 
 ```monad
@@ -132,50 +135,71 @@ type Bool {
 }
 
 type Result E A {
-  ok (a: A),
-  err (e: E)
+  ok (a : A),
+  err (e : E)
 }
 
 type List A {
   empty,
-  cons (a : A) (List A) : List A
+  cons (a : A) (rest : List A) : List A
 }
 ```
+
+Commas between items are optional where the reference parser allows it (bare type constructors, match cases, use items); struct fields and parameterized constructors are comma-separated in practice — like the reference parser, a following identifier would otherwise extend the preceding type or default value as an application.
 
 ### Definitions
 
 ```monad
-def add (a : Nat) (b : Nat) : Nat := a + b
+def add (a : I64) (b : I64) : I64 := a + b
 
-def Bool.not (b : Bool) : Bool := if b then false else true
+def const {A : Type} {B : Type} (a : A) (b : B) : A := a
 
-def List.append (a b : List A) : List A :=
-  match a {
-    empty => b,
-    cons el_a tail => List.cons el_a (List.append tail b)
+def both (a b : Bool) : Bool := a && b
+
+def not (b : Bool) : Bool := if b then false else true
+
+def length {A : Type} (xs : List A) : I64 :=
+  match xs {
+    empty => 0,
+    cons _ rest => 1 + length rest,
+    _ => 0
   }
 ```
+
+Multi-name parameter groups (`(a b : Bool)`), implicit binders (`{A : Type}`), `_` hole patterns, and all three match-case shapes (bare, named-field, positional) are supported.
 
 ### Classes and Instances
 
 ```monad
-class Functor (F: Type -> Type) {
-  def map (f: A -> B) : (F A) -> F B
+class Show A {
+  def show : A -> String
 }
 
-class [Functor F] Applicative (F: Type -> Type) {
-  def pure : A -> F A
-  def apply : F (A -> B) -> F A -> F B
+class [Eq A] Ord A {
+  def compare (a : A) (b : A) : Ordering
 }
 
-instance Functor List {
-  def map (f : A -> B) (self: List A) : List B :=
-    match self {
-      empty => List.empty,
-      cons a tail => List.cons (f a) (Functor.map f tail)
-    }
+instance Show I64 {
+  def show (n : I64) : String := I64.to_string n
+}
+
+instance [Show A] Show (List A) {
+  def show (xs : List A) : String := list_show Show.show xs
 }
 ```
+
+### Modules
+
+```monad
+use std::list {List.cons, List.length}
+use lib::show {Show as ShowClass}
+
+open IO {println, current_time}
+
+open Monads in def wrapped : I64 := 1
+```
+
+`use` paths are `::`-separated; `open` takes a dotted name path. Qualified references like `std::list::List.cons` parse as one `module_path` node.
 
 ### Infix Operators
 
@@ -184,55 +208,103 @@ infix (>>=) := Monad.bind
 infix (<|) := fun_apply
 infix (|>) := apply_fun
 infix (++) := append
+
+infix :12 (++) := Append.append
 ```
 
-### Do Notation
+Binary operator precedence mirrors the self-hosted parser's operator table: `|>` `<|` `>>=` `.` `<*>` `<|>` `||` `&&` comparisons (`==` `!=` `<` `>` `<=` `>=`) `++`/`@` shifts `+`/`-` `*`/`/`, with application binding tightest and `->` loosest. Only these operators may be declared; anything else is an "unknown operator". The optional `:N` clause is accepted and discarded.
+
+### Do Notation and Monadic Returns
 
 ```monad
-def example := do {
-  let x := getValue;
-  y <- transform x;
-  return y
-}
+def read_pair (get : I64 -> IO I64) : IO I64 :=
+  do {
+    let x <- get 0;
+    let y := x + 1;
+    let z <- get y;
+    return z
+  }
+
+def via_bind : IO Unit :=
+  get_line >>= \line => println line
 ```
 
-### Linear and Affine Types
+Both binding forms start with `let` and are distinguished by `<-` vs `:=`. Semicolons are optional per statement. `return e` is also a plain term outside `do` blocks.
+
+### Lambdas and Let
 
 ```monad
-def consume (!x : Resource) : Unit := release x
+def increment : I64 -> I64 := fn x => x + 1
 
-def maybe_use (?x : Resource) : Unit := if available then use x else noop
+def apply_twice {A : Type} (f : A -> A) (a : A) : A :=
+  let b := f a in f b
 ```
 
-### Attributes
+All three lambda spellings (`fn`, `\`, `ꟛ`) parse; bodies extend greedily (`fn x => x + 1` binds `x + 1`).
+
+### Literals
 
 ```monad
+def samples : List String := [
+  "escaped \" and \n and \u{1F600}",
+  r"no \ escapes",
+  r#"quotes " inside"#,
+  "chars:",
+  String.of_char 'x'
+]
+
+def cfg : Config := {debug := true, timeout := 30}
+
+def updated : Config := {cfg with timeout := 60}
+
+def level : Type := Sort 1
+```
+
+Numbers take `i8`..`u64`, `f32`/`f64` suffixes; `0x` hex literals and floats are separate node types. Raw strings support up to three delimiter hashes (`r###"..."###`).
+
+### Attributes and Motes
+
+```monad
+#![mote tests]
+
 #[test]
-def test_function : Bool := true
+def one_plus_one : Bool := 2 == 1 + 1
 
-#[native "add"]
-def native_add (a b : I64) : I64
-
-#[deprecated {since := "1.0", reason := "use new_function"}]
-def old_function := "old"
+#[deprecated {since := "0.2", reason := "use two"}]
+def old_name : I64 := 2
 ```
 
-### Struct Field Defaults
+### Macros and With Blocks
+
+```monad
+defmacro derive_eq (name : String) := decls {
+  def name_beq (a b : I64) : Bool := a == b
+}
+
+with Monadic {
+  def pure {A : Type} (a : A) : IO A := IO.pure a
+}
+
+derive_debug! Point
+```
+
+Decl-level macro calls (`name! args`) and `with`-prefixed declaration blocks are supported.
+
+### Structs and Multiplicity
 
 ```monad
 struct Config {
-  debug : Bool := false
+  debug : Bool := false,
   timeout : I64 := 30
 }
+
+def consume (!x : Resource) : Unit := release x
+
+def maybe_use (?x : Resource) : Unit :=
+  if available then use x else noop
 ```
 
-### Term Constructors (Bootstrap Compiler)
-
-```monad
-Term.hole
-Term.type_
-Term.con
-```
+`%`/`!`/`?` multiplicity prefixes are accepted on binders (Erased/Linear/Affine).
 
 ## License
 

@@ -72,89 +72,7 @@
             "named": true
           },
           {
-            "type": "sort",
-            "named": true
-          },
-          {
-            "type": "string",
-            "named": true
-          }
-        ]
-      },
-      "name": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "apply",
-            "named": true
-          },
-          {
-            "type": "char",
-            "named": true
-          },
-          {
-            "type": "do",
-            "named": true
-          },
-          {
-            "type": "float",
-            "named": true
-          },
-          {
-            "type": "hex_number",
-            "named": true
-          },
-          {
-            "type": "hole",
-            "named": true
-          },
-          {
-            "type": "identifier",
-            "named": true
-          },
-          {
-            "type": "if_then_else",
-            "named": true
-          },
-          {
-            "type": "implicit_param",
-            "named": true
-          },
-          {
-            "type": "lambda",
-            "named": true
-          },
-          {
-            "type": "let",
-            "named": true
-          },
-          {
-            "type": "list",
-            "named": true
-          },
-          {
-            "type": "macro_call",
-            "named": true
-          },
-          {
-            "type": "match_term",
-            "named": true
-          },
-          {
-            "type": "module_path",
-            "named": true
-          },
-          {
-            "type": "number",
-            "named": true
-          },
-          {
-            "type": "parenthesized",
-            "named": true
-          },
-          {
-            "type": "quote_term",
+            "type": "raw_string",
             "named": true
           },
           {
@@ -171,6 +89,42 @@
           },
           {
             "type": "struct_update",
+            "named": true
+          }
+        ]
+      },
+      "hint": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "dict_hint",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "apply",
+            "named": true
+          },
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "macro_call",
+            "named": true
+          },
+          {
+            "type": "module_path",
+            "named": true
+          },
+          {
+            "type": "parenthesized",
             "named": true
           }
         ]
@@ -191,10 +145,6 @@
           },
           {
             "type": "arrow",
-            "named": true
-          },
-          {
-            "type": "backtick_call",
             "named": true
           },
           {
@@ -267,6 +217,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -300,10 +258,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -373,6 +327,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -509,234 +471,6 @@
     }
   },
   {
-    "type": "backtick_call",
-    "named": true,
-    "fields": {
-      "left": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "apply",
-            "named": true
-          },
-          {
-            "type": "arrow",
-            "named": true
-          },
-          {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
-            "type": "binary_expression",
-            "named": true
-          },
-          {
-            "type": "char",
-            "named": true
-          },
-          {
-            "type": "do",
-            "named": true
-          },
-          {
-            "type": "float",
-            "named": true
-          },
-          {
-            "type": "hex_number",
-            "named": true
-          },
-          {
-            "type": "hole",
-            "named": true
-          },
-          {
-            "type": "identifier",
-            "named": true
-          },
-          {
-            "type": "if_then_else",
-            "named": true
-          },
-          {
-            "type": "implicit_param",
-            "named": true
-          },
-          {
-            "type": "lambda",
-            "named": true
-          },
-          {
-            "type": "let",
-            "named": true
-          },
-          {
-            "type": "list",
-            "named": true
-          },
-          {
-            "type": "macro_call",
-            "named": true
-          },
-          {
-            "type": "match_term",
-            "named": true
-          },
-          {
-            "type": "module_path",
-            "named": true
-          },
-          {
-            "type": "number",
-            "named": true
-          },
-          {
-            "type": "parenthesized",
-            "named": true
-          },
-          {
-            "type": "quote_term",
-            "named": true
-          },
-          {
-            "type": "sort",
-            "named": true
-          },
-          {
-            "type": "string",
-            "named": true
-          },
-          {
-            "type": "struct_literal",
-            "named": true
-          },
-          {
-            "type": "struct_update",
-            "named": true
-          }
-        ]
-      },
-      "operator": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "identifier",
-            "named": true
-          }
-        ]
-      },
-      "right": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "apply",
-            "named": true
-          },
-          {
-            "type": "arrow",
-            "named": true
-          },
-          {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
-            "type": "binary_expression",
-            "named": true
-          },
-          {
-            "type": "char",
-            "named": true
-          },
-          {
-            "type": "do",
-            "named": true
-          },
-          {
-            "type": "float",
-            "named": true
-          },
-          {
-            "type": "hex_number",
-            "named": true
-          },
-          {
-            "type": "hole",
-            "named": true
-          },
-          {
-            "type": "identifier",
-            "named": true
-          },
-          {
-            "type": "if_then_else",
-            "named": true
-          },
-          {
-            "type": "implicit_param",
-            "named": true
-          },
-          {
-            "type": "lambda",
-            "named": true
-          },
-          {
-            "type": "let",
-            "named": true
-          },
-          {
-            "type": "list",
-            "named": true
-          },
-          {
-            "type": "macro_call",
-            "named": true
-          },
-          {
-            "type": "match_term",
-            "named": true
-          },
-          {
-            "type": "module_path",
-            "named": true
-          },
-          {
-            "type": "number",
-            "named": true
-          },
-          {
-            "type": "parenthesized",
-            "named": true
-          },
-          {
-            "type": "quote_term",
-            "named": true
-          },
-          {
-            "type": "sort",
-            "named": true
-          },
-          {
-            "type": "string",
-            "named": true
-          },
-          {
-            "type": "struct_literal",
-            "named": true
-          },
-          {
-            "type": "struct_update",
-            "named": true
-          }
-        ]
-      }
-    }
-  },
-  {
     "type": "binary_expression",
     "named": true,
     "fields": {},
@@ -750,10 +484,6 @@
         },
         {
           "type": "arrow",
-          "named": true
-        },
-        {
-          "type": "backtick_call",
           "named": true
         },
         {
@@ -829,6 +559,14 @@
           "named": true
         },
         {
+          "type": "raw_string",
+          "named": true
+        },
+        {
+          "type": "return_term",
+          "named": true
+        },
+        {
           "type": "sort",
           "named": true
         },
@@ -889,10 +627,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -965,6 +699,14 @@
             "named": true
           },
           {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
+            "named": true
+          },
+          {
             "type": "sort",
             "named": true
           },
@@ -983,7 +725,7 @@
         ]
       },
       "name": {
-        "multiple": false,
+        "multiple": true,
         "required": true,
         "types": [
           {
@@ -1009,10 +751,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -1082,6 +820,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -1108,6 +854,10 @@
       "required": false,
       "types": [
         {
+          "type": "attributes",
+          "named": true
+        },
+        {
           "type": "identifier",
           "named": true
         },
@@ -1117,6 +867,10 @@
         },
         {
           "type": "type_constraints",
+          "named": true
+        },
+        {
+          "type": "visibility",
           "named": true
         }
       ]
@@ -1136,10 +890,6 @@
           },
           {
             "type": "arrow",
-            "named": true
-          },
-          {
-            "type": "backtick_call",
             "named": true
           },
           {
@@ -1212,6 +962,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -1255,10 +1013,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -1328,6 +1082,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -1399,10 +1161,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -1472,6 +1230,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -1544,10 +1310,6 @@
           "named": true
         },
         {
-          "type": "decls_block",
-          "named": true
-        },
-        {
           "type": "def",
           "named": true
         },
@@ -1568,6 +1330,10 @@
           "named": true
         },
         {
+          "type": "mote_attr",
+          "named": true
+        },
+        {
           "type": "open",
           "named": true
         },
@@ -1581,6 +1347,10 @@
         },
         {
           "type": "use",
+          "named": true
+        },
+        {
+          "type": "with_decl",
           "named": true
         }
       ]
@@ -1607,10 +1377,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -1628,10 +1394,6 @@
           },
           {
             "type": "do_let",
-            "named": true
-          },
-          {
-            "type": "do_return",
             "named": true
           },
           {
@@ -1692,6 +1454,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -1753,10 +1523,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -1829,6 +1595,14 @@
             "named": true
           },
           {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
+            "named": true
+          },
+          {
             "type": "sort",
             "named": true
           },
@@ -1884,10 +1658,6 @@
           },
           {
             "type": "arrow",
-            "named": true
-          },
-          {
-            "type": "backtick_call",
             "named": true
           },
           {
@@ -1967,6 +1737,14 @@
             "named": true
           },
           {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
+            "named": true
+          },
+          {
             "type": "sort",
             "named": true
           },
@@ -2011,10 +1789,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -2084,6 +1858,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -2110,6 +1892,10 @@
       "required": false,
       "types": [
         {
+          "type": "attributes",
+          "named": true
+        },
+        {
           "type": "identifier",
           "named": true
         },
@@ -2122,6 +1908,26 @@
           "named": true
         }
       ]
+    }
+  },
+  {
+    "type": "dict_hint",
+    "named": true,
+    "fields": {
+      "class": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "module_path",
+            "named": true
+          }
+        ]
+      }
     }
   },
   {
@@ -2145,10 +1951,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -2166,10 +1968,6 @@
           },
           {
             "type": "do_let",
-            "named": true
-          },
-          {
-            "type": "do_return",
             "named": true
           },
           {
@@ -2230,6 +2028,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -2279,10 +2085,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -2352,6 +2154,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -2411,10 +2221,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -2484,6 +2290,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -2514,118 +2328,6 @@
           "named": true
         }
       ]
-    }
-  },
-  {
-    "type": "do_return",
-    "named": true,
-    "fields": {
-      "value": {
-        "multiple": false,
-        "required": true,
-        "types": [
-          {
-            "type": "apply",
-            "named": true
-          },
-          {
-            "type": "arrow",
-            "named": true
-          },
-          {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
-            "type": "binary_expression",
-            "named": true
-          },
-          {
-            "type": "char",
-            "named": true
-          },
-          {
-            "type": "do",
-            "named": true
-          },
-          {
-            "type": "float",
-            "named": true
-          },
-          {
-            "type": "hex_number",
-            "named": true
-          },
-          {
-            "type": "hole",
-            "named": true
-          },
-          {
-            "type": "identifier",
-            "named": true
-          },
-          {
-            "type": "if_then_else",
-            "named": true
-          },
-          {
-            "type": "implicit_param",
-            "named": true
-          },
-          {
-            "type": "lambda",
-            "named": true
-          },
-          {
-            "type": "let",
-            "named": true
-          },
-          {
-            "type": "list",
-            "named": true
-          },
-          {
-            "type": "macro_call",
-            "named": true
-          },
-          {
-            "type": "match_term",
-            "named": true
-          },
-          {
-            "type": "module_path",
-            "named": true
-          },
-          {
-            "type": "number",
-            "named": true
-          },
-          {
-            "type": "parenthesized",
-            "named": true
-          },
-          {
-            "type": "quote_term",
-            "named": true
-          },
-          {
-            "type": "sort",
-            "named": true
-          },
-          {
-            "type": "string",
-            "named": true
-          },
-          {
-            "type": "struct_literal",
-            "named": true
-          },
-          {
-            "type": "struct_update",
-            "named": true
-          }
-        ]
-      }
     }
   },
   {
@@ -2676,10 +2378,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -2749,6 +2447,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -2782,10 +2488,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -2855,6 +2557,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -2888,10 +2598,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -2961,6 +2667,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -3010,10 +2724,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -3083,6 +2793,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -3194,10 +2912,6 @@
             "named": false
           },
           {
-            "type": "=",
-            "named": false
-          },
-          {
             "type": "==",
             "named": false
           },
@@ -3228,6 +2942,16 @@
           {
             "type": "||",
             "named": false
+          }
+        ]
+      },
+      "precedence": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "number",
+            "named": true
           }
         ]
       }
@@ -3363,6 +3087,10 @@
           "named": true
         },
         {
+          "type": "raw_string",
+          "named": true
+        },
+        {
           "type": "sort",
           "named": true
         },
@@ -3406,7 +3134,129 @@
             "named": true
           },
           {
-            "type": "backtick_call",
+            "type": "binary_expression",
+            "named": true
+          },
+          {
+            "type": "char",
+            "named": true
+          },
+          {
+            "type": "do",
+            "named": true
+          },
+          {
+            "type": "float",
+            "named": true
+          },
+          {
+            "type": "hex_number",
+            "named": true
+          },
+          {
+            "type": "hole",
+            "named": true
+          },
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "if_then_else",
+            "named": true
+          },
+          {
+            "type": "implicit_param",
+            "named": true
+          },
+          {
+            "type": "lambda",
+            "named": true
+          },
+          {
+            "type": "let",
+            "named": true
+          },
+          {
+            "type": "list",
+            "named": true
+          },
+          {
+            "type": "macro_call",
+            "named": true
+          },
+          {
+            "type": "match_term",
+            "named": true
+          },
+          {
+            "type": "module_path",
+            "named": true
+          },
+          {
+            "type": "number",
+            "named": true
+          },
+          {
+            "type": "parenthesized",
+            "named": true
+          },
+          {
+            "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
+            "named": true
+          },
+          {
+            "type": "sort",
+            "named": true
+          },
+          {
+            "type": "string",
+            "named": true
+          },
+          {
+            "type": "struct_literal",
+            "named": true
+          },
+          {
+            "type": "struct_update",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "lambda_param",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "lambda_param",
+    "named": true,
+    "fields": {
+      "default": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "apply",
+            "named": true
+          },
+          {
+            "type": "arrow",
             "named": true
           },
           {
@@ -3482,6 +3332,144 @@
             "named": true
           },
           {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
+            "named": true
+          },
+          {
+            "type": "sort",
+            "named": true
+          },
+          {
+            "type": "string",
+            "named": true
+          },
+          {
+            "type": "struct_literal",
+            "named": true
+          },
+          {
+            "type": "struct_update",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      },
+      "pattern": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "field_pattern",
+            "named": true
+          }
+        ]
+      },
+      "type": {
+        "multiple": false,
+        "required": false,
+        "types": [
+          {
+            "type": "apply",
+            "named": true
+          },
+          {
+            "type": "arrow",
+            "named": true
+          },
+          {
+            "type": "binary_expression",
+            "named": true
+          },
+          {
+            "type": "char",
+            "named": true
+          },
+          {
+            "type": "do",
+            "named": true
+          },
+          {
+            "type": "float",
+            "named": true
+          },
+          {
+            "type": "hex_number",
+            "named": true
+          },
+          {
+            "type": "hole",
+            "named": true
+          },
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "if_then_else",
+            "named": true
+          },
+          {
+            "type": "implicit_param",
+            "named": true
+          },
+          {
+            "type": "lambda",
+            "named": true
+          },
+          {
+            "type": "let",
+            "named": true
+          },
+          {
+            "type": "list",
+            "named": true
+          },
+          {
+            "type": "macro_call",
+            "named": true
+          },
+          {
+            "type": "match_term",
+            "named": true
+          },
+          {
+            "type": "module_path",
+            "named": true
+          },
+          {
+            "type": "number",
+            "named": true
+          },
+          {
+            "type": "parenthesized",
+            "named": true
+          },
+          {
+            "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
+            "named": true
+          },
+          {
             "type": "sort",
             "named": true
           },
@@ -3502,38 +3490,8 @@
     },
     "children": {
       "multiple": true,
-      "required": true,
-      "types": [
-        {
-          "type": "lambda_param",
-          "named": true
-        }
-      ]
-    }
-  },
-  {
-    "type": "lambda_param",
-    "named": true,
-    "fields": {
-      "pattern": {
-        "multiple": false,
-        "required": false,
-        "types": [
-          {
-            "type": "field_pattern",
-            "named": true
-          }
-        ]
-      }
-    },
-    "children": {
-      "multiple": true,
       "required": false,
       "types": [
-        {
-          "type": "hole",
-          "named": true
-        },
         {
           "type": "identifier",
           "named": true
@@ -3576,10 +3534,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -3649,6 +3603,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -3698,10 +3660,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -3774,6 +3732,14 @@
             "named": true
           },
           {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
+            "named": true
+          },
+          {
             "type": "sort",
             "named": true
           },
@@ -3817,10 +3783,6 @@
         },
         {
           "type": "arrow",
-          "named": true
-        },
-        {
-          "type": "backtick_call",
           "named": true
         },
         {
@@ -3893,6 +3855,14 @@
         },
         {
           "type": "quote_term",
+          "named": true
+        },
+        {
+          "type": "raw_string",
+          "named": true
+        },
+        {
+          "type": "return_term",
           "named": true
         },
         {
@@ -4007,6 +3977,10 @@
             "named": true
           },
           {
+            "type": "raw_string",
+            "named": true
+          },
+          {
             "type": "sort",
             "named": true
           },
@@ -4087,10 +4061,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -4160,6 +4130,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -4237,10 +4215,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -4310,6 +4284,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -4346,10 +4328,6 @@
           "named": true
         },
         {
-          "type": "decls_block",
-          "named": true
-        },
-        {
           "type": "def",
           "named": true
         },
@@ -4370,6 +4348,10 @@
           "named": true
         },
         {
+          "type": "mote_attr",
+          "named": true
+        },
+        {
           "type": "open",
           "named": true
         },
@@ -4383,6 +4365,10 @@
         },
         {
           "type": "use",
+          "named": true
+        },
+        {
+          "type": "with_decl",
           "named": true
         }
       ]
@@ -4404,6 +4390,32 @@
     }
   },
   {
+    "type": "mote_attr",
+    "named": true,
+    "fields": {
+      "argument": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "attr_arg",
+            "named": true
+          }
+        ]
+      },
+      "name": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "multiplicity",
     "named": true,
     "fields": {}
@@ -4418,10 +4430,6 @@
         "types": [
           {
             "type": "class",
-            "named": true
-          },
-          {
-            "type": "decls_block",
             "named": true
           },
           {
@@ -4445,6 +4453,10 @@
             "named": true
           },
           {
+            "type": "mote_attr",
+            "named": true
+          },
+          {
             "type": "open",
             "named": true
           },
@@ -4459,6 +4471,10 @@
           {
             "type": "use",
             "named": true
+          },
+          {
+            "type": "with_decl",
+            "named": true
           }
         ]
       },
@@ -4467,7 +4483,7 @@
         "required": false,
         "types": [
           {
-            "type": "use_filter",
+            "type": "open_filter",
             "named": true
           }
         ]
@@ -4499,6 +4515,22 @@
     }
   },
   {
+    "type": "open_filter",
+    "named": true,
+    "fields": {
+      "name": {
+        "multiple": true,
+        "required": false,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
     "type": "param_block",
     "named": true,
     "fields": {},
@@ -4517,118 +4549,22 @@
     "type": "param_group",
     "named": true,
     "fields": {
-      "default": {
-        "multiple": false,
+      "name": {
+        "multiple": true,
         "required": false,
         "types": [
           {
-            "type": "apply",
-            "named": true
-          },
-          {
-            "type": "arrow",
-            "named": true
-          },
-          {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
-            "type": "binary_expression",
-            "named": true
-          },
-          {
-            "type": "char",
-            "named": true
-          },
-          {
-            "type": "do",
-            "named": true
-          },
-          {
-            "type": "float",
-            "named": true
-          },
-          {
-            "type": "hex_number",
-            "named": true
-          },
-          {
-            "type": "hole",
-            "named": true
-          },
-          {
             "type": "identifier",
-            "named": true
-          },
-          {
-            "type": "if_then_else",
-            "named": true
-          },
-          {
-            "type": "implicit_param",
-            "named": true
-          },
-          {
-            "type": "lambda",
-            "named": true
-          },
-          {
-            "type": "let",
-            "named": true
-          },
-          {
-            "type": "list",
-            "named": true
-          },
-          {
-            "type": "macro_call",
-            "named": true
-          },
-          {
-            "type": "match_term",
-            "named": true
-          },
-          {
-            "type": "module_path",
-            "named": true
-          },
-          {
-            "type": "number",
-            "named": true
-          },
-          {
-            "type": "parenthesized",
-            "named": true
-          },
-          {
-            "type": "quote_term",
-            "named": true
-          },
-          {
-            "type": "sort",
-            "named": true
-          },
-          {
-            "type": "string",
-            "named": true
-          },
-          {
-            "type": "struct_literal",
-            "named": true
-          },
-          {
-            "type": "struct_update",
             "named": true
           }
         ]
       },
-      "name": {
-        "multiple": true,
-        "required": true,
+      "pattern": {
+        "multiple": false,
+        "required": false,
         "types": [
           {
-            "type": "identifier",
+            "type": "field_pattern",
             "named": true
           }
         ]
@@ -4646,10 +4582,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -4719,6 +4651,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -4765,10 +4705,6 @@
         },
         {
           "type": "arrow",
-          "named": true
-        },
-        {
-          "type": "backtick_call",
           "named": true
         },
         {
@@ -4844,6 +4780,14 @@
           "named": true
         },
         {
+          "type": "raw_string",
+          "named": true
+        },
+        {
+          "type": "return_term",
+          "named": true
+        },
+        {
           "type": "sort",
           "named": true
         },
@@ -4884,10 +4828,6 @@
           },
           {
             "type": "arrow",
-            "named": true
-          },
-          {
-            "type": "backtick_call",
             "named": true
           },
           {
@@ -4960,6 +4900,130 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
+            "named": true
+          },
+          {
+            "type": "sort",
+            "named": true
+          },
+          {
+            "type": "string",
+            "named": true
+          },
+          {
+            "type": "struct_literal",
+            "named": true
+          },
+          {
+            "type": "struct_update",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "return_term",
+    "named": true,
+    "fields": {
+      "value": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "apply",
+            "named": true
+          },
+          {
+            "type": "arrow",
+            "named": true
+          },
+          {
+            "type": "binary_expression",
+            "named": true
+          },
+          {
+            "type": "char",
+            "named": true
+          },
+          {
+            "type": "do",
+            "named": true
+          },
+          {
+            "type": "float",
+            "named": true
+          },
+          {
+            "type": "hex_number",
+            "named": true
+          },
+          {
+            "type": "hole",
+            "named": true
+          },
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "if_then_else",
+            "named": true
+          },
+          {
+            "type": "implicit_param",
+            "named": true
+          },
+          {
+            "type": "lambda",
+            "named": true
+          },
+          {
+            "type": "let",
+            "named": true
+          },
+          {
+            "type": "list",
+            "named": true
+          },
+          {
+            "type": "macro_call",
+            "named": true
+          },
+          {
+            "type": "match_term",
+            "named": true
+          },
+          {
+            "type": "module_path",
+            "named": true
+          },
+          {
+            "type": "number",
+            "named": true
+          },
+          {
+            "type": "parenthesized",
+            "named": true
+          },
+          {
+            "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -5058,10 +5122,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -5131,6 +5191,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -5192,10 +5260,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -5265,6 +5329,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -5308,10 +5380,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -5381,6 +5449,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -5440,10 +5516,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -5513,6 +5585,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -5556,6 +5636,14 @@
           {
             "type": "identifier",
             "named": true
+          },
+          {
+            "type": "module_path",
+            "named": true
+          },
+          {
+            "type": "parenthesized",
+            "named": true
           }
         ]
       },
@@ -5579,10 +5667,6 @@
           },
           {
             "type": "arrow",
-            "named": true
-          },
-          {
-            "type": "backtick_call",
             "named": true
           },
           {
@@ -5658,6 +5742,14 @@
             "named": true
           },
           {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
+            "named": true
+          },
+          {
             "type": "sort",
             "named": true
           },
@@ -5683,7 +5775,7 @@
     "fields": {},
     "children": {
       "multiple": true,
-      "required": true,
+      "required": false,
       "types": [
         {
           "type": "apply",
@@ -5691,10 +5783,6 @@
         },
         {
           "type": "arrow",
-          "named": true
-        },
-        {
-          "type": "backtick_call",
           "named": true
         },
         {
@@ -5770,6 +5858,14 @@
           "named": true
         },
         {
+          "type": "raw_string",
+          "named": true
+        },
+        {
+          "type": "return_term",
+          "named": true
+        },
+        {
           "type": "sort",
           "named": true
         },
@@ -5802,10 +5898,6 @@
           },
           {
             "type": "arrow",
-            "named": true
-          },
-          {
-            "type": "backtick_call",
             "named": true
           },
           {
@@ -5878,6 +5970,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -5917,10 +6017,6 @@
           "named": true
         },
         {
-          "type": "backtick_call",
-          "named": true
-        },
-        {
           "type": "binary_expression",
           "named": true
         },
@@ -5990,6 +6086,14 @@
         },
         {
           "type": "quote_term",
+          "named": true
+        },
+        {
+          "type": "raw_string",
+          "named": true
+        },
+        {
+          "type": "return_term",
           "named": true
         },
         {
@@ -6057,10 +6161,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -6133,6 +6233,14 @@
             "named": true
           },
           {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
+            "named": true
+          },
+          {
             "type": "sort",
             "named": true
           },
@@ -6151,7 +6259,7 @@
         ]
       },
       "name": {
-        "multiple": false,
+        "multiple": true,
         "required": true,
         "types": [
           {
@@ -6177,10 +6285,6 @@
             "named": true
           },
           {
-            "type": "backtick_call",
-            "named": true
-          },
-          {
             "type": "binary_expression",
             "named": true
           },
@@ -6250,6 +6354,14 @@
           },
           {
             "type": "quote_term",
+            "named": true
+          },
+          {
+            "type": "raw_string",
+            "named": true
+          },
+          {
+            "type": "return_term",
             "named": true
           },
           {
@@ -6317,26 +6429,18 @@
         "required": true,
         "types": [
           {
-            "type": "identifier",
-            "named": true
-          },
-          {
-            "type": "module_path",
+            "type": "use_path",
             "named": true
           }
         ]
       }
     },
     "children": {
-      "multiple": true,
+      "multiple": false,
       "required": false,
       "types": [
         {
           "type": "attributes",
-          "named": true
-        },
-        {
-          "type": "visibility",
           "named": true
         }
       ]
@@ -6388,6 +6492,41 @@
           {
             "type": "identifier",
             "named": true
+          },
+          {
+            "type": "use_item_name",
+            "named": true
+          }
+        ]
+      }
+    }
+  },
+  {
+    "type": "use_item_name",
+    "named": true,
+    "fields": {},
+    "children": {
+      "multiple": true,
+      "required": true,
+      "types": [
+        {
+          "type": "identifier",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
+    "type": "use_path",
+    "named": true,
+    "fields": {
+      "segment": {
+        "multiple": true,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
           }
         ]
       }
@@ -6399,6 +6538,80 @@
     "fields": {}
   },
   {
+    "type": "with_decl",
+    "named": true,
+    "fields": {
+      "prefix": {
+        "multiple": false,
+        "required": true,
+        "types": [
+          {
+            "type": "identifier",
+            "named": true
+          },
+          {
+            "type": "module_path",
+            "named": true
+          }
+        ]
+      }
+    },
+    "children": {
+      "multiple": true,
+      "required": false,
+      "types": [
+        {
+          "type": "class",
+          "named": true
+        },
+        {
+          "type": "def",
+          "named": true
+        },
+        {
+          "type": "defmacro",
+          "named": true
+        },
+        {
+          "type": "infix",
+          "named": true
+        },
+        {
+          "type": "instance",
+          "named": true
+        },
+        {
+          "type": "macro_call_decl",
+          "named": true
+        },
+        {
+          "type": "mote_attr",
+          "named": true
+        },
+        {
+          "type": "open",
+          "named": true
+        },
+        {
+          "type": "struct",
+          "named": true
+        },
+        {
+          "type": "type_decl",
+          "named": true
+        },
+        {
+          "type": "use",
+          "named": true
+        },
+        {
+          "type": "with_decl",
+          "named": true
+        }
+      ]
+    }
+  },
+  {
     "type": "!",
     "named": false
   },
@@ -6408,6 +6621,14 @@
   },
   {
     "type": "\"",
+    "named": false
+  },
+  {
+    "type": "#",
+    "named": false
+  },
+  {
+    "type": "#![",
     "named": false
   },
   {
@@ -6475,6 +6696,10 @@
     "named": false
   },
   {
+    "type": "::",
+    "named": false
+  },
+  {
     "type": ":=",
     "named": false
   },
@@ -6508,10 +6733,6 @@
   },
   {
     "type": "<|>",
-    "named": false
-  },
-  {
-    "type": "=",
     "named": false
   },
   {
@@ -6560,10 +6781,6 @@
   },
   {
     "type": "]",
-    "named": false
-  },
-  {
-    "type": "`",
     "named": false
   },
   {
@@ -6666,6 +6883,10 @@
   },
   {
     "type": "quoted_char",
+    "named": true
+  },
+  {
+    "type": "raw_string",
     "named": true
   },
   {

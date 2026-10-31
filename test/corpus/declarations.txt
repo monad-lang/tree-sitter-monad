@@ -102,10 +102,17 @@ Infix operator
 
 infix (+) := I64.add
 
+infix :12 (++) := Append.append
+
 ---
 
 (module
   (infix
+    (module_path
+      (identifier)
+      (identifier)))
+  (infix
+    (number)
     (module_path
       (identifier)
       (identifier))))
@@ -114,26 +121,102 @@ infix (+) := I64.add
 Module use with filter
 ===
 
-use std.list {map, filter}
+use std::list {List.map, List.filter}
+use std::map {*}
 open IO {println}
 
 ---
 
 (module
   (use
-    (module_path
+    (use_path
+      (identifier)
+      (identifier))
+    (use_filter
+      (use_item
+        (use_item_name
+          (identifier)
+          (identifier)))
+      (use_item
+        (use_item_name
+          (identifier)
+          (identifier)))))
+  (use
+    (use_path
+      (identifier)
+      (identifier))
+    (use_filter
+      (use_item)))
+  (open
+    (identifier)
+    (open_filter
+      (identifier))))
+
+===
+Use with rename, sub-module items, and pub
+===
+
+pub use std::stream {StreamError, FdStream {read_mode, write_mode} }
+use init::optics {Lens, over, set, view}
+
+---
+
+(module
+  (use
+    (use_path
       (identifier)
       (identifier))
     (use_filter
       (use_item
         (identifier))
       (use_item
-        (identifier))))
-  (open
-    (identifier)
+        (identifier)
+        (use_filter
+          (use_item
+            (identifier))
+          (use_item
+            (identifier))))))
+  (use
+    (use_path
+      (identifier)
+      (identifier))
     (use_filter
       (use_item
+        (identifier))
+      (use_item
+        (identifier))
+      (use_item
+        (identifier))
+      (use_item
         (identifier)))))
+
+===
+Open with glob and scoped open
+===
+
+open std::path {*}
+open IO {println} in
+def greet (name : String) : String := name
+
+---
+
+(module
+  (open
+    (module_path
+      (identifier)
+      (identifier))
+    (open_filter))
+  (open
+    (identifier)
+    (open_filter
+      (identifier))
+    (def
+      (identifier)
+      (param_group
+        (identifier)
+        (identifier))
+      (identifier)
+      (identifier))))
 
 ===
 defmacro and decls block

@@ -1,6 +1,6 @@
 const {sep0} = require('./util.js')
 
-// Real attribute syntax is `#[...]` (see core/src/parser.rs
+// Real attribute syntax is `#[...]` (see rust/core/src/parser.rs
 // attribute_parser/attr_arg_parser/vis_parser). The old `@[...]` delimiter
 // was a legacy form that's since been freed up as a general infix operator
 // (`@`), so `#[` is the only valid attribute bracket.
@@ -38,6 +38,16 @@ module.exports = {
 
   // Attributes stack: `#[a]\n#[b]\ndef ...`
   attributes: $ => repeat1($.attribute),
+
+  // `#![mote { name := "x", deps := [init, std] }]` — the file-level INNER
+  // attribute, parsed as an ordinary declaration
+  // (rust/core/src/parser.rs mote_attr_parser).
+  mote_attr: $ => seq(
+    '#![',
+    field('name', $.identifier),
+    repeat(field('argument', $.attr_arg)),
+    ']',
+  ),
 
   visibility: $ => choice('pub', 'priv'),
 }
